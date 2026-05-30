@@ -1,0 +1,6 @@
+.env
+*.env
+/.vs
+/Projekt_SimpleNote/bin/Debug/net9.0
+/Projekt_SimpleNote/obj
+/Projekt_SimpleNote/Properties/launchSettings.json

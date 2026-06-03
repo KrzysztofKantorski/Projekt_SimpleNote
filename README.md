@@ -45,6 +45,7 @@ dotnet run
 
 ## Authentication flow
 This API uses a two-token architecture to maximize security and UX.
+
 **1. Login (POST /api/auth/login)** 
 * Returns an AccessToken (lives for 15 minutes) and a RefreshToken (lives for 7 days).
 

@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Projekt_SimpleNote.Dto.Interactions;
+using Projekt_SimpleNote.Dto.Comments;
 
 namespace Projekt_SimpleNote.Validators
 {

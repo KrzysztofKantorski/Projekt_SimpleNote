@@ -94,10 +94,18 @@ namespace Projekt_SimpleNote.Services
                .Include(u => u.User)
                .FirstOrDefaultAsync(rf => rf.Token == refreshToken);
 
+            //Check if token is valid
             if (existingToken == null) 
             {
                 return (false, "Incorrect token", null);
             }
+
+            //Check if user got banned
+            if (!existingToken.User.IsActive)
+            {
+                return (false, "Your account is not active.", null);
+            }
+
 
             //Verify token
             if (existingToken.ExpiresAt < DateTime.UtcNow || existingToken.RevokedAt != null) {
@@ -140,6 +148,11 @@ namespace Projekt_SimpleNote.Services
             if (user == null)
             {
                 return (false, "Incorrect username or password", null); 
+            }
+
+            if (!user.IsActive)
+            {
+                return (false, "Your account is not active.", null);
             }
 
             //Verify password

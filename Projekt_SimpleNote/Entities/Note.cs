@@ -16,5 +16,7 @@
         public ICollection<NoteReaction> Reactions { get; set; } = new List<NoteReaction>();
         public ICollection<Tag> Tags { get; set; } = new List<Tag>();
         public ICollection<User> SavedByUsers { get; set; } = new List<User>();
+
+        public bool IsHiddenByAdmin { get; set; } = false;
     }
 }

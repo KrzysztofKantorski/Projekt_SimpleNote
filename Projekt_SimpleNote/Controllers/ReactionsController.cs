@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Projekt_SimpleNote.Entities;
+using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Services.Interfaces;
 using System.Security.Claims;
 
@@ -11,7 +12,6 @@ namespace Projekt_SimpleNote.Controllers
     [Authorize]
     public class ReactionsController : ControllerBase
     {
-        private long currentUserId => Convert.ToInt64(HttpContext.Items["CurrentUserId"]);
         private readonly IReactionsService _reactionsService;
 
         public ReactionsController(IReactionsService reactionsService)
@@ -35,11 +35,7 @@ namespace Projekt_SimpleNote.Controllers
         [HttpGet("notes/{noteId}/reactions")]
         public async Task<IActionResult> GetNoteReactionsSummary([FromRoute] long noteId)
         {
-
-            if (currentUserId == 0)
-            {
-                return Unauthorized();
-            }
+            var currentUserId = HttpContext.GetCurrentUserId();
 
             if (noteId <= 0)
             {
@@ -60,11 +56,7 @@ namespace Projekt_SimpleNote.Controllers
 
         public async Task<IActionResult> AddNoteReaction([FromRoute] long noteId, [FromRoute] long reactionId)
         {
-
-            if (currentUserId == 0)
-            {
-                return Unauthorized();
-            }
+            var currentUserId = HttpContext.GetCurrentUserId();
 
             if (noteId <= 0)
             {
@@ -100,10 +92,8 @@ namespace Projekt_SimpleNote.Controllers
 
         public async Task<IActionResult> RemoveNoteReaction([FromRoute] long noteId, [FromRoute] long reactionId)
         {
-            if(currentUserId == 0)
-            {
-                return Unauthorized();
-            }
+            var currentUserId = HttpContext.GetCurrentUserId();
+            
 
             if (noteId <= 0)
             {

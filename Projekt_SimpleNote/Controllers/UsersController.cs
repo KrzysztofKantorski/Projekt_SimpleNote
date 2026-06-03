@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Services.Interfaces;
 
 namespace Projekt_SimpleNote.Controllers
@@ -9,7 +10,6 @@ namespace Projekt_SimpleNote.Controllers
     [Authorize]
     public class UsersController : ControllerBase
     {
-        private long currentUserId => Convert.ToInt64(HttpContext.Items["CurrentUserId"]);
         private readonly IUserService _userService;
 
         public UsersController(IUserService userService)
@@ -20,10 +20,8 @@ namespace Projekt_SimpleNote.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetMe()
         {
-            if (currentUserId == 0)
-            {
-                return Unauthorized(new { message = "Incorrect data" });
-            }
+            var currentUserId = HttpContext.GetCurrentUserId();
+           
 
             var userProfile = await _userService.GetUserProfileAsync(currentUserId);
 

@@ -1,7 +1,8 @@
 using DotNetEnv;
 using FluentValidation;
+using Projekt_SimpleNote.Dto.Admin;
 using Projekt_SimpleNote.Dto.Auth;
-using Projekt_SimpleNote.Dto.Interactions;
+using Projekt_SimpleNote.Dto.Comments;
 using Projekt_SimpleNote.Dto.Notes;
 using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Middleware;
@@ -32,6 +33,8 @@ builder.Services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateNoteDto>, CreateNoteDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateNoteDto>, UpdateNoteDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateCommentDto>, CreateCommentDtoValidator>();
+builder.Services.AddScoped<IValidator<CreateReactionTypeDto>, CreateReactionTypeDtoValidator>();
+builder.Services.AddScoped<IValidator<SubjectRequestDto>, SubjectRequestDtoValidator>();
 
 
 //Services
@@ -43,6 +46,10 @@ builder.Services.AddScoped<ICommunityService, CommunityService>();
 builder.Services.AddScoped<ISavedNotesService, SavedNotesService>();
 builder.Services.AddScoped<ICommentsService, CommentsService>();
 builder.Services.AddScoped<IReactionsService, ReactionsService>();
+builder.Services.AddScoped<IAdminUsersService, AdminUsersService>();
+builder.Services.AddScoped<IAdminReactionsService, AdminReactionsSerwice>();
+builder.Services.AddScoped<IAdminSubjectsService, AdminSubjectsService>();
+builder.Services.AddScoped<IAdminCommentsService, AdminCommentsService>();
 
 
 

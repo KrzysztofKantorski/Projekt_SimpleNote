@@ -12,5 +12,7 @@
         public ICollection<Comment> Replies { get; set; } = new List<Comment>();
         public string Content { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public bool IsHiddenByAdmin { get; set; } = false;
     }
 }

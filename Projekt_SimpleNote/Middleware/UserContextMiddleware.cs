@@ -18,37 +18,46 @@ namespace Projekt_SimpleNote.Middleware
         {
             var endpoint = context.GetEndpoint();
 
-            //Check if endpoint enables anonymous users to access
             if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null)
             {
                 await _next(context);
                 return;
             }
 
-            //If request requires user authentication
+            // If endpoint uses [Authorize]
             if (context.User.Identity?.IsAuthenticated == true)
             {
-                var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                // Get id from jwt
+                var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                                  ?? context.User.FindFirst("sub")?.Value;
 
                 if (long.TryParse(userIdClaim, out long userId))
                 {
-                    //Get isActive flag from db
+                    // Get isActive flag
                     var userStatus = await dbContext.Users
                         .Where(u => u.Id == userId)
                         .Select(u => new { u.IsActive })
                         .FirstOrDefaultAsync();
 
-                    //Check if user account is active
+                    // If user is banned or does not exist
                     if (userStatus == null || !userStatus.IsActive)
                     {
                         context.Response.StatusCode = StatusCodes.Status403Forbidden;
                         context.Response.ContentType = "application/json";
                         await context.Response.WriteAsJsonAsync(new { message = "Your account is not active." });
-                        return;
+                        return; // Blokada - short-circuit
                     }
 
-                    // Save userId for controllers
+                    // Save user Id
                     context.Items["CurrentUserId"] = userId;
+                }
+                else
+                {
+                    
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsJsonAsync(new { message = "Malformed token: User ID could not be resolved." });
+                    return;
                 }
             }
 

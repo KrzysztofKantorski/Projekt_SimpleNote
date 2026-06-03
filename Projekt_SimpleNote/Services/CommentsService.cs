@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Projekt_SimpleNote.Data;
-using Projekt_SimpleNote.Dto.Interactions;
+using Projekt_SimpleNote.Dto.Comments;
 using Projekt_SimpleNote.Entities;
 using Projekt_SimpleNote.Services.Interfaces;
 

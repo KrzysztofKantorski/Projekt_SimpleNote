@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Projekt_SimpleNote.Dto.Interactions;
+using Projekt_SimpleNote.Dto.Comments;
+using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Services.Interfaces;
 using System.Security.Claims;
 
@@ -11,7 +12,6 @@ namespace Projekt_SimpleNote.Controllers
     [Authorize]
     public class CommentsController : ControllerBase
     {
-        private long currentUserId => Convert.ToInt64(HttpContext.Items["CurrentUserId"]);
 
         private readonly ICommentsService _commentsService;
 
@@ -26,7 +26,7 @@ namespace Projekt_SimpleNote.Controllers
         [HttpGet("{noteId}/comments")]
         public async Task<IActionResult> GetComments([FromRoute] long noteId)
         {
-           
+            var currentUserId = HttpContext.GetCurrentUserId();
             var result = await _commentsService.GetCommentsAsync(noteId, currentUserId);
 
             if (!result.Success)
@@ -45,7 +45,7 @@ namespace Projekt_SimpleNote.Controllers
         [HttpPost("{noteId}/comments")]
         public async Task<IActionResult> CreateComment([FromRoute] long noteId, [FromBody] CreateCommentDto dto)
         {
-          
+            var currentUserId = HttpContext.GetCurrentUserId();
             var result = await _commentsService.CreateCommentAsync(noteId, currentUserId, dto);
 
             if (!result.Success)
@@ -62,7 +62,7 @@ namespace Projekt_SimpleNote.Controllers
         [HttpDelete("{noteId}/comments/{commentId}")]
         public async Task<IActionResult> DeleteComment([FromRoute] long noteId, [FromRoute] long commentId)
         {
-
+            var currentUserId = HttpContext.GetCurrentUserId();
             var result = await _commentsService.DeleteCommentAsync(noteId, currentUserId, commentId);
 
             if (!result.Success)

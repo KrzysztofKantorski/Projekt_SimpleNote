@@ -1,4 +1,4 @@
-﻿namespace Projekt_SimpleNote.Dto.Interactions
+﻿namespace Projekt_SimpleNote.Dto.Comments
 {
     public record CommentDto(
          long Id,

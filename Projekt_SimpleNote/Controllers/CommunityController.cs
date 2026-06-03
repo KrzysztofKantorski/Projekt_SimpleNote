@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Services.Interfaces;
 
 namespace Projekt_SimpleNote.Controllers
@@ -9,7 +10,6 @@ namespace Projekt_SimpleNote.Controllers
     [Authorize]
     public class CommunityController : ControllerBase
     {
-        private long currentUserId => Convert.ToInt64(HttpContext.Items["CurrentUserId"]);
         private readonly ICommunityService _communityService;
 
         public CommunityController(ICommunityService communityService)
@@ -28,7 +28,7 @@ namespace Projekt_SimpleNote.Controllers
             [FromQuery] string? tag
         )
         {
-
+            var currentUserId = HttpContext.GetCurrentUserId();
             var notes = await _communityService.GetPublicNotesAsync(phrase, subject, tag, currentUserId);
 
             return Ok(notes);
@@ -41,6 +41,7 @@ namespace Projekt_SimpleNote.Controllers
         [HttpGet("notes/{id}")]
         public async Task<IActionResult> GetCommunityNoteDetails([FromRoute] long id)
         {
+            var currentUserId = HttpContext.GetCurrentUserId();
             if (id <= 0)
             {
                 return BadRequest(new { message = "You must provide proper note id" });

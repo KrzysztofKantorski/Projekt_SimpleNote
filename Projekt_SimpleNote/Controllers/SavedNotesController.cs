@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Services.Interfaces;
 using System.Security.Claims;
 
@@ -10,7 +11,6 @@ namespace Projekt_SimpleNote.Controllers
     [Authorize]
     public class SavedNotesController : ControllerBase
     {
-        private long currentUserId => Convert.ToInt64(HttpContext.Items["CurrentUserId"]);
         private readonly ISavedNotesService _savedNotesService;
 
         public SavedNotesController(ISavedNotesService savedNotesService)
@@ -23,7 +23,7 @@ namespace Projekt_SimpleNote.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSavedNotes()
         {
-           
+            var currentUserId = HttpContext.GetCurrentUserId();
             var result = await _savedNotesService.GetSavedNotesAsync(currentUserId);
             return Ok(result);
         }
@@ -34,7 +34,9 @@ namespace Projekt_SimpleNote.Controllers
         [HttpPost("{noteId}")]
         public async Task<IActionResult> SaveNote([FromRoute] long noteId)
         {
-            if(currentUserId <= 0)
+
+            var currentUserId = HttpContext.GetCurrentUserId();
+            if (currentUserId <= 0)
             {
                 return Unauthorized(new { messasge = "Incorrect data" });
             }
@@ -59,6 +61,7 @@ namespace Projekt_SimpleNote.Controllers
         [HttpDelete("{noteId}")]
         public async Task<IActionResult> RemoveSavedNote([FromRoute] long noteId)
         {
+            var currentUserId = HttpContext.GetCurrentUserId();
             if (currentUserId <= 0)
             {
                 return Unauthorized(new { messasge = "Incorrect data" });

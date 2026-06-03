@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Projekt_SimpleNote.Dto.Notes;
+using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Services.Interfaces;
 
 namespace Projekt_SimpleNote.Controllers
@@ -10,7 +11,7 @@ namespace Projekt_SimpleNote.Controllers
     [Authorize]
     public class NotesController : ControllerBase
     {
-        private long currentUserId => Convert.ToInt64(HttpContext.Items["CurrentUserId"]);
+
         private readonly INotesService _notesService;
         public NotesController(INotesService notesService)
         {
@@ -22,6 +23,7 @@ namespace Projekt_SimpleNote.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetNoteById([FromRoute] long id)
         {
+            var currentUserId = HttpContext.GetCurrentUserId();
             if (id <= 0)
             {
                 return BadRequest(new { message = "You must provide proper note id" });
@@ -45,7 +47,7 @@ namespace Projekt_SimpleNote.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllNotes()
         {
-           
+            var currentUserId = HttpContext.GetCurrentUserId();
             var notes = await _notesService.GetAllUserNotesAsync(currentUserId);
 
             return Ok(notes);
@@ -59,7 +61,7 @@ namespace Projekt_SimpleNote.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateNote(CreateNoteDto dto)
         {
-           
+            var currentUserId = HttpContext.GetCurrentUserId();
 
             var newNote = await _notesService.CreateNoteAsync(dto, currentUserId);
 
@@ -74,7 +76,7 @@ namespace Projekt_SimpleNote.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateNote(long id, [FromBody] UpdateNoteDto dto)
         {
-           
+            var currentUserId = HttpContext.GetCurrentUserId();
 
             var result = await _notesService.UpdateNoteAsync(id, dto, currentUserId);
 
@@ -93,6 +95,7 @@ namespace Projekt_SimpleNote.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNote([FromRoute] long id)
         {
+            var currentUserId = HttpContext.GetCurrentUserId();
             if (id <= 0)
             {
                 return BadRequest(new { message = "You must provide proper note id" });

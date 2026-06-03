@@ -54,11 +54,10 @@ Authorization: Bearer <AccessToken>
 
 **3 Handling Token Expiration (401 Unauthorized)**
 * The Flutter app must implement an HTTP Interceptor.
-* When any request returns a 401 Unauthorized status, the interceptor should catch it, pause the request, and silently call
+* When any request returns a 401 Unauthorized status, the interceptor should catch it, pause the request, and silently call using the saved RefreshToken: 
 ```
 POST /api/auth/refresh
 ```
-using the saved RefreshToken.
 * On success, save the new tokens and automatically retry the original paused request.
 * Do NOT send the RefreshToken with standard requests.
 

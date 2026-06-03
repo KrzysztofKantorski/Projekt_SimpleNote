@@ -54,11 +54,17 @@ Authorization: Bearer <AccessToken>
 
 **3 Handling Token Expiration (401 Unauthorized)**
 * The Flutter app must implement an HTTP Interceptor.
-* When any request returns a 401 Unauthorized status, the interceptor should catch it, pause the request, and silently call POST /api/auth/refresh using the saved RefreshToken.
+* When any request returns a 401 Unauthorized status, the interceptor should catch it, pause the request, and silently call
+```
+POST /api/auth/refresh
+```
+using the saved RefreshToken.
 * On success, save the new tokens and automatically retry the original paused request.
 * Do NOT send the RefreshToken with standard requests.
 
 ## API Documentation (Swagger)
 API reference is automatically generated. You do not need to read through the source code to find endpoints or DTO structures.
 Once the API is running, navigate to:
-https://localhost:<PORT>/swagger
+```
+https://localhost:PORT/swagger
+```

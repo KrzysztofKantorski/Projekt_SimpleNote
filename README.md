@@ -32,9 +32,31 @@ cd Projekt_SimpleNote
 * JWT_AUDIENCE=SimpleNoteApp
 
 **3. Apply database migrations**
-* dotnet ef database update
-
+```
+dotnet ef database update
+```
 **4. Run API**
-* dotnet run
-
+``` 
+dotnet run
+```
 **5. https://localhost:<PORT> (check console output for PORT)**
+
+## Authentication flow
+This API uses a two-token architecture to maximize security and UX.
+**1. Login (POST /api/auth/login)** 
+* Returns an AccessToken (lives for 15 minutes) and a RefreshToken (lives for 7 days).
+
+**2 Standard Requests**
+* Attach the AccessToken to the Authorization header as a Bearer token:
+Authorization: Bearer <AccessToken>
+
+**3 Handling Token Expiration (401 Unauthorized)**
+* The Flutter app must implement an HTTP Interceptor.
+* When any request returns a 401 Unauthorized status, the interceptor should catch it, pause the request, and silently call POST /api/auth/refresh using the saved RefreshToken.
+* On success, save the new tokens and automatically retry the original paused request.
+* Do NOT send the RefreshToken with standard requests.
+
+## API Documentation (Swagger)
+API reference is automatically generated. You do not need to read through the source code to find endpoints or DTO structures.
+Once the API is running, navigate to:
+https://localhost:<PORT>/swagger

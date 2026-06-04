@@ -13,15 +13,10 @@ namespace Projekt_SimpleNote.Services
         //Dbcontext
         private readonly ApplicationDbContext _context;
 
-        //Validators
-        private readonly IValidator<CreateNoteDto> _createNoteValidator;
-        private readonly IValidator<UpdateNoteDto> _updateNoteValidator;
-
-        public NotesService(ApplicationDbContext context, IValidator<CreateNoteDto> createNoteValidator, IValidator<UpdateNoteDto> updateNoteValidator)
+      
+        public NotesService(ApplicationDbContext context)
         {
             _context = context;
-            _createNoteValidator = createNoteValidator;
-            _updateNoteValidator = updateNoteValidator;
         }
 
         //Get user notes
@@ -78,8 +73,6 @@ namespace Projekt_SimpleNote.Services
         //Create note
         public async Task<NoteDto> CreateNoteAsync(CreateNoteDto dto, long userId)
         {
-            //Validate dto
-            await _createNoteValidator.ValidateAndThrowAsync(dto);
 
             //Search subject or create new one
             Subject? subjectEntity = null;
@@ -155,8 +148,7 @@ namespace Projekt_SimpleNote.Services
         //Update note
         public async Task<(bool Success, string Message, NoteDto? Note)> UpdateNoteAsync(long id, UpdateNoteDto dto, long userId)
         {
-            await _updateNoteValidator.ValidateAndThrowAsync(dto);
-
+            
             //Check if note exists and belongs to user
             var existingNote = await _context.Notes
                 .Include(n => n.Subject)

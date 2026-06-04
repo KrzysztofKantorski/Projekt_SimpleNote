@@ -69,9 +69,9 @@ namespace Projekt_SimpleNote.Services
         //Update reaction type
         public async Task<(bool Success, string Message, ReactionTypeDto? Data)> UpdateSubjectAsync(long id, CreateReactionTypeDto dto)
         {
-            var subject = await _context.ReactionTypes.FirstOrDefaultAsync(s => s.Id == id);
+            var reaction = await _context.ReactionTypes.FirstOrDefaultAsync(s => s.Id == id);
 
-            if (subject == null)
+            if (reaction == null)
             {
                 return (false, "Subject not found.", null);
             }
@@ -88,16 +88,16 @@ namespace Projekt_SimpleNote.Services
                 return (false, "This subject alerdy exists", null);
             }
 
-            subject.Name = dto.Name;
+            reaction.Name = dto.Name;
             await _context.SaveChangesAsync();
 
             var subjectDto = new ReactionTypeDto
                 (
-                    subject.Id,
-                    subject.Name, 
-                    subject.IconUrl
+                    reaction.Id,
+                    reaction.Name, 
+                    reaction.IconUrl
                 );
-            return (true, "Subject updated", subjectDto);
+            return (true, "Reaction updated", subjectDto);
 
         }
 

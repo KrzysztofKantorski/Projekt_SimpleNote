@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Projekt_SimpleNote.Dto.Auth;
 using Projekt_SimpleNote.Services.Interfaces;
@@ -10,13 +11,30 @@ namespace Projekt_SimpleNote.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        public AuthController(IAuthService authService)
+
+        //Validators
+        private readonly IValidator<RegisterDto> _registerValidator;
+        private readonly IValidator<LoginDto> _loginValidator;
+
+        public AuthController(IAuthService authService, IValidator<RegisterDto> registerValidator, IValidator<LoginDto> loginValidator)
         {
             _authService = authService;
+            _registerValidator = registerValidator;
+            _loginValidator = loginValidator;
         }
+
+
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto) {
+
+            var validationResult = await _registerValidator.ValidateAsync(dto);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+            }
+
 
             var result = await _authService.RegisterAsync(dto);
 
@@ -31,6 +49,15 @@ namespace Projekt_SimpleNote.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
+
+
+            var validationResult = await _loginValidator.ValidateAsync(dto);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+            }
+
             var result = await _authService.LoginAsync(dto);
 
             if (!result.Success)

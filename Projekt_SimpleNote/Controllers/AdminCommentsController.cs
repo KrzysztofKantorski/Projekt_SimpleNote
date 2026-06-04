@@ -23,6 +23,8 @@ namespace Projekt_SimpleNote.Controllers
             var result = await _adminCommentsService.GetAllCommentsAsync();
             return Ok(result);
         }
+
+
         [HttpDelete("{commentId}")]
         public async Task<IActionResult> DeleteComment([FromRoute] long commentId)
         {

@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Projekt_SimpleNote.Dto.Admin;
 using Projekt_SimpleNote.Dto.Comments;
 using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Services.Interfaces;
@@ -14,10 +16,12 @@ namespace Projekt_SimpleNote.Controllers
     {
 
         private readonly ICommentsService _commentsService;
+        private readonly IValidator<CreateCommentDto> _validator;
 
-        public CommentsController(ICommentsService noteInteractionsService)
+        public CommentsController(ICommentsService noteInteractionsService, IValidator<CreateCommentDto> validator)
         {
             _commentsService = noteInteractionsService;
+            _validator = validator;
         }
 
 
@@ -45,6 +49,13 @@ namespace Projekt_SimpleNote.Controllers
         [HttpPost("{noteId}/comments")]
         public async Task<IActionResult> CreateComment([FromRoute] long noteId, [FromBody] CreateCommentDto dto)
         {
+            var validationResult = await _validator.ValidateAsync(dto);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+            }
+
             var currentUserId = HttpContext.GetCurrentUserId();
             var result = await _commentsService.CreateCommentAsync(noteId, currentUserId, dto);
 

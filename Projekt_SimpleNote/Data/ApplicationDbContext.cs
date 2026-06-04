@@ -9,15 +9,19 @@ namespace Projekt_SimpleNote.Data
         {
         }
 
+        protected ApplicationDbContext()
+        {
+        }
+
         //Db sets
-        public DbSet<User> Users { get; set; } = null!;
-        public DbSet<Note> Notes { get; set; } = null!;
-        public DbSet<Subject> Subjects { get; set; } = null!;
-        public DbSet<Tag> Tags { get; set; } = null!;
-        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
-        public DbSet<Comment> Comments { get; set; } = null!;
-        public DbSet<ReactionType> ReactionTypes { get; set; } = null!;
-        public DbSet<NoteReaction> NoteReactions { get; set; } = null!;
+        public virtual DbSet<User> Users { get; set; } = null!;
+        public virtual DbSet<Note> Notes { get; set; } = null!;
+        public virtual DbSet<Subject> Subjects { get; set; } = null!;
+        public virtual DbSet<Tag> Tags { get; set; } = null!;
+        public virtual DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+        public virtual DbSet<Comment> Comments { get; set; } = null!;
+        public virtual DbSet<ReactionType> ReactionTypes { get; set; } = null!;
+        public virtual DbSet<NoteReaction> NoteReactions { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
 

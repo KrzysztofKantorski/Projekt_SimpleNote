@@ -48,6 +48,7 @@ namespace Projekt_SimpleNote.Services
                     u.Reactions.Count
                 ))
                 .FirstOrDefaultAsync();
+
             if (user == null)
             {
                 return (false, "User does not exist", null);
@@ -90,5 +91,11 @@ namespace Projekt_SimpleNote.Services
 
             return (true, "");
         }
+
+
+
+
+
+
     }
 }

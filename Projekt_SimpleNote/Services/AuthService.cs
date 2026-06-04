@@ -18,15 +18,11 @@ namespace Projekt_SimpleNote.Services
         //Add db context 
         private readonly ApplicationDbContext _context;
 
-        //Validators
-        private readonly IValidator<RegisterDto> _registerValidator;
-        private readonly IValidator<LoginDto> _loginValidator;
+        
 
-        public AuthService(ApplicationDbContext context, IValidator<RegisterDto> registerValidator, IValidator<LoginDto> loginValidator)
+        public AuthService(ApplicationDbContext context)
         {
             _context = context;
-            _registerValidator = registerValidator;
-            _loginValidator = loginValidator;
         }
 
         public async Task<(bool Success, string Message)> LogoutAsync(string refreshToken)
@@ -57,8 +53,7 @@ namespace Projekt_SimpleNote.Services
 
         public async Task<(bool Success, string Message)> RegisterAsync(RegisterDto dto) {
 
-            //Validate dto
-            await _registerValidator.ValidateAndThrowAsync(dto);
+            
 
             bool usernameInUse = await _context.Users.AnyAsync(u => u.Username == dto.Username);
 
@@ -82,13 +77,8 @@ namespace Projekt_SimpleNote.Services
             return (true, "Registration went successfully.");
         }
 
-
-      
-
-
         public async Task<(bool Success, string Message, TokenResponseDto? Tokens)> RefreshTokenAsync(string refreshToken) 
         {
-            
             //validate token
             var existingToken = await _context.RefreshTokens
                .Include(u => u.User)
@@ -141,8 +131,6 @@ namespace Projekt_SimpleNote.Services
 
         public async Task<(bool Success, string Message, TokenResponseDto? Tokens)> LoginAsync (LoginDto dto)
         {
-            await _loginValidator.ValidateAndThrowAsync(dto);
-
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
 
             if (user == null)
@@ -187,9 +175,6 @@ namespace Projekt_SimpleNote.Services
         }
 
         private string GenerateJwtToken(User user) {
-            //Dodanie claimów
-            //Zaszyfrowanie
-
             var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET")!;
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);

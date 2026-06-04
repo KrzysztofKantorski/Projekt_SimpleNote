@@ -116,11 +116,5 @@ namespace Projekt_SimpleNote.Services
             return (noteDto);
 
         }
-
-
-
-
-     
-
     }
 }

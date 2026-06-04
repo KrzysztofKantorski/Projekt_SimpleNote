@@ -10,15 +10,11 @@ namespace Projekt_SimpleNote.Services
     public class CommentsService: ICommentsService
     {
         private readonly ApplicationDbContext _context;
-        private readonly IValidator<CreateCommentDto> _createCommentValidator;
 
-        public CommentsService(ApplicationDbContext context, IValidator<CreateCommentDto> createCommentValidator)
+        public CommentsService(ApplicationDbContext context)
         {
             _context = context;
-            _createCommentValidator = createCommentValidator;
         }
-
-
 
         //Get note commetns (and replies)
         public async Task<(bool Success, string Message, IEnumerable<CommentDto>? Comments)> GetCommentsAsync(
@@ -85,9 +81,6 @@ namespace Projekt_SimpleNote.Services
             CreateCommentDto dto
         )
         {
-            //Validate dto
-            await _createCommentValidator.ValidateAndThrowAsync(dto);
-
             //Check if note exists
             var note = await _context.Notes
                 .FirstOrDefaultAsync(

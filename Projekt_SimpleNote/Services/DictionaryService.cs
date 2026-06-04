@@ -25,7 +25,7 @@ namespace Projekt_SimpleNote.Services
                 var searchLower = search.Trim().ToLower();
                 tags = tags
                     .Where(t => t.Name.ToLower()
-                    .Contains(searchLower)
+                        .Contains(searchLower)
                     );
             }
 

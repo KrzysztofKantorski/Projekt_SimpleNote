@@ -9,7 +9,7 @@ using Projekt_SimpleNote.Middleware;
 using Projekt_SimpleNote.Services;
 using Projekt_SimpleNote.Services.Interfaces;
 using Projekt_SimpleNote.Validators;
-
+using Scalar.AspNetCore;
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,13 +21,13 @@ builder.Services.AddDatabaseConfiguration(builder.Configuration);
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-
 builder.Services.AddCorsConfiguration();
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
 
 
+builder.Services.AddEndpointsApiExplorer();
 //Validators
+builder.Services.AddScoped<IValidator<RegisterDto>, RegisterDtoValidator>();
 builder.Services.AddScoped<IValidator<RegisterDto>, RegisterDtoValidator>();
 builder.Services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateNoteDto>, CreateNoteDtoValidator>();
@@ -53,9 +53,20 @@ builder.Services.AddScoped<IAdminCommentsService, AdminCommentsService>();
 
 
 
+builder.Services.AddOpenApiConfiguration();
 builder.Services.AddJwtConfiguration();
 
+
+
+
 var app = builder.Build();
+
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
 
 app.UseExceptionHandler();
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Projekt_SimpleNote.Dto.Notes;
 using Projekt_SimpleNote.Extensions;
@@ -13,9 +14,13 @@ namespace Projekt_SimpleNote.Controllers
     {
 
         private readonly INotesService _notesService;
-        public NotesController(INotesService notesService)
+        private readonly IValidator<CreateNoteDto> _createNoteValidator;
+        private readonly IValidator<UpdateNoteDto> _updateNoteValidator;
+        public NotesController(INotesService notesService, IValidator<CreateNoteDto> createNoteValidator, IValidator<UpdateNoteDto> updateNoteValidator)
         {
             _notesService = notesService;
+            _createNoteValidator = createNoteValidator;
+            _updateNoteValidator = updateNoteValidator;
         }
 
         //Get note by note and user id
@@ -61,6 +66,13 @@ namespace Projekt_SimpleNote.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateNote(CreateNoteDto dto)
         {
+
+            var validationResult = await _createNoteValidator.ValidateAsync(dto);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+            }
             var currentUserId = HttpContext.GetCurrentUserId();
 
             var newNote = await _notesService.CreateNoteAsync(dto, currentUserId);
@@ -76,6 +88,12 @@ namespace Projekt_SimpleNote.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateNote(long id, [FromBody] UpdateNoteDto dto)
         {
+            var validationResult = await _updateNoteValidator.ValidateAsync(dto);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+            }
             var currentUserId = HttpContext.GetCurrentUserId();
 
             var result = await _notesService.UpdateNoteAsync(id, dto, currentUserId);

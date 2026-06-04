@@ -101,7 +101,7 @@ namespace Projekt_SimpleNote.Services
                     subject.Name
                 );
 
-            return (true, "Zaktualizowano przedmiot.", updatedSubjectDto);
+            return (true, "Subject updated.", updatedSubjectDto);
 
         }
 
@@ -129,7 +129,7 @@ namespace Projekt_SimpleNote.Services
             _context.Subjects.Remove(subject);
             await _context.SaveChangesAsync();
 
-            return (true, "Przedmiot został usunięty.");
+            return (true, "Subject deleted");
         }
     }
 }

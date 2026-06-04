@@ -20,7 +20,7 @@ namespace Projekt_SimpleNote.Controllers
 
 
         //Get community notes (for displaying to list) based on filters
-
+        [AllowAnonymous]
         [HttpGet("notes")]
         public async Task<IActionResult> GetCommunityNotes(
             [FromQuery] string? phrase,
@@ -28,7 +28,7 @@ namespace Projekt_SimpleNote.Controllers
             [FromQuery] string? tag
         )
         {
-            var currentUserId = HttpContext.GetCurrentUserId();
+            var currentUserId = HttpContext.GetOptionalCurrentUserId() ?? 0;
             var notes = await _communityService.GetPublicNotesAsync(phrase, subject, tag, currentUserId);
 
             return Ok(notes);
@@ -37,11 +37,11 @@ namespace Projekt_SimpleNote.Controllers
 
 
         //Get community note details based on note id
-
+        [AllowAnonymous]
         [HttpGet("notes/{id}")]
         public async Task<IActionResult> GetCommunityNoteDetails([FromRoute] long id)
         {
-            var currentUserId = HttpContext.GetCurrentUserId();
+            var currentUserId = HttpContext.GetOptionalCurrentUserId() ?? 0;
             if (id <= 0)
             {
                 return BadRequest(new { message = "You must provide proper note id" });

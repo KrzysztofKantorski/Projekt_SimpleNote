@@ -22,7 +22,7 @@ Before running the API locally, ensure you have the following installed:
 
 **1. Clone the repository**
 ```bash
-git clone [https://github.com/YOUR_USERNAME/Projekt_SimpleNote.git](https://github.com/YOUR_USERNAME/Projekt_SimpleNote.git)
+git clone https://github.com/KrzysztofKantorski/Projekt_SimpleNote
 cd Projekt_SimpleNote
 ```
 **2. Configure Environment Variables**

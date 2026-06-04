@@ -28,7 +28,7 @@ cd Projekt_SimpleNote
 **2. Configure Environment Variables**
 ```
 DB_CONNECTION_STRING=Host=localhost;Database=simplenotedb;Username=postgres;Password=yourpassword
-JWT_SECRET=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+JWT_SECRET=YourSuperSecretKey(min 32 characters)
 JWT_ISSUER=SimpleNoteAPI
 JWT_AUDIENCE=SimpleNoteApp
 ```

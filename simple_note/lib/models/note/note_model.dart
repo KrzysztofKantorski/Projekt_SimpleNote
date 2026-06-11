@@ -17,6 +17,24 @@ class NoteModel {
     this.updatedAt,
   });
 
+  String get timeAgo {
+    final DateTime displayDate = updatedAt ?? createdAt;
+
+    final now = DateTime.now();
+    final difference = now.difference(displayDate);
+
+    if (difference.inMinutes < 1) {
+      return 'Przed chwilą';
+    } else if (difference.inMinutes < 60) {
+      return 'Zmodyfikowano ${difference.inMinutes} min temu';
+    } else if (difference.inHours < 24) {
+      return 'Zmodyfikowano ${difference.inHours} godz. temu';
+    } else {
+      return 'Zmodyfikowano ${difference.inDays} dni temu';
+    }
+  }
+
+
   //Map to object
   factory NoteModel.fromJson(Map<String, dynamic> json) {
     return NoteModel(

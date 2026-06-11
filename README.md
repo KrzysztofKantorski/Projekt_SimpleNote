@@ -27,7 +27,7 @@ cd Projekt_SimpleNote
 ```
 **2. Configure Environment Variables**
 ```
-DB_CONNECTION_STRING=Host=localhost;Database=simplenotedb;Username=postgres;Password=yourpassword
+CONN_STRING=Host=localhost;Database=simplenotedb;Username=postgres;Password=yourpassword
 JWT_SECRET=YourSuperSecretKey(min 32 characters)
 JWT_ISSUER=SimpleNoteAPI
 JWT_AUDIENCE=SimpleNoteApp
@@ -66,5 +66,5 @@ POST /api/auth/refresh
 API reference is automatically generated. You do not need to read through the source code to find endpoints or DTO structures.
 Once the API is running, navigate to:
 ```
-https://localhost:PORT/swagger
+https://localhost:PORT/scalar/v1
 ```

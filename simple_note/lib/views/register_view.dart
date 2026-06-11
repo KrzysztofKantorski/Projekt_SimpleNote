@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
+import 'package:simple_note/components/welcome_widgets/welcome_widgets.dart';
 
 
 class RegisterView extends StatefulWidget {
@@ -54,34 +55,40 @@ class _RegisterViewState extends State<RegisterView>{
     final authViewModel = Provider.of<AuthViewModel>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Rejestracja')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 28.0),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
-              const Icon(Icons.app_registration, size: 80, color: Colors.deepPurple),
-              const SizedBox(height: 32),
-              TextFormField(
+              const SizedBox(height: 48),
+              const AppTitle(),
+              const SizedBox(height: 40),
+              const ScreenHeader(
+                title: 'Create an account',
+                subtitle: 'Enter your email to sign up for this app',
+              ),
+              const SizedBox(height: 28),
+              CustomFormTextField(
                 controller: _usernameController,
-                decoration: const InputDecoration(labelText: 'Nazwa użytkownika', border: OutlineInputBorder()),
+                placeholder: 'Nazwa Użytkownika',
                 validator: (val) => val == null || val.isEmpty ? 'Wpisz nazwę użytkownika' : null,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              const SizedBox(height: 12),
+              CustomFormTextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Hasło', border: OutlineInputBorder()),
+                placeholder: 'Hasło',
                 validator: (val) {
                   if (val == null || val.isEmpty) return 'Wpisz hasło';
                   if (val.length < 8) return 'Hasło musi mieć min. 8 znaków';
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 8),
               
               // Display error messages from backend
               if (authViewModel.errorMessage != null)
@@ -101,13 +108,21 @@ class _RegisterViewState extends State<RegisterView>{
                 //Loading
                 child: authViewModel.isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : ElevatedButton(
+                    : PrimaryButton(
                         onPressed: _submit,
-                        child: const Text('Zarejestruj się', style: TextStyle(fontSize: 18)),
+                        label: 'Continue',
                       ),
+                      
               ),
+              const SizedBox(height: 16),
+              CastomTermsFooter(
+                onTermsTap: () {/* TODO */},
+                onPrivacyTap: () {/* TODO */},
+              ),
+              const SizedBox(height: 32),
             ],
           ),
+        ),
         ),
       ),
     );

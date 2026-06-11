@@ -8,13 +8,15 @@ import 'services/dio_client.dart';
 import 'viewmodels/app_state_viewmodel.dart';
 import 'viewmodels/auth_viewmodel.dart';
 import 'viewmodels/user_viewmodel.dart';
+import 'viewmodels/note_viewmodel.dart';
 
 // Views
 import 'views/onboarding_view.dart';
 import 'views/login_view.dart';
 import 'views/home_view.dart';
 
-
+// Theme
+import 'theme/AppTheme.dart';
 
 
 
@@ -32,6 +34,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AppStateViewModel()),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => NoteViewModel()),
         ChangeNotifierProvider(create: (_) => UserViewModel()),
       ],
       child: const MyApp(),
@@ -48,10 +51,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Simple Note',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
       home: Consumer<AppStateViewModel>(
         builder: (context, appState, child) {
 

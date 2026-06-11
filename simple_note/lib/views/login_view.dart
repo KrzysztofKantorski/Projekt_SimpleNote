@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../viewmodels/app_state_viewmodel.dart'; 
 import 'register_view.dart';
-
+import 'package:simple_note/components/welcome_widgets/welcome_widgets.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -41,28 +41,36 @@ class _LoginViewState extends State<LoginView>{
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
+      backgroundColor: Colors.white,
+        body: SafeArea(
+        child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 28.0),
         child: Form(
           key: _formKey,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(Icons.note_alt, size: 80, color: Colors.deepPurple),
-              const SizedBox(height: 32),
-              TextFormField(
+              const SizedBox(height: 48),
+              const AppTitle(),
+              const SizedBox(height: 40),
+              const ScreenHeader(
+                title: 'Welcome back!',
+                subtitle: 'Enter your username to log in to this app',
+              ),
+              const SizedBox(height: 28),
+              CustomFormTextField(
                 controller: _usernameController,
-                decoration: const InputDecoration(labelText: 'Login', border: OutlineInputBorder()),
+                placeholder: 'Nazwa Użytkownika',
                 validator: (val) => val == null || val.isEmpty ? 'Podaj login' : null,
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              CustomFormTextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Hasło', border: OutlineInputBorder()),
+                placeholder: 'Hasło',
                 validator: (val) => val == null || val.isEmpty ? 'Podaj hasło' : null,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
               
 
               //Display error message
@@ -79,9 +87,9 @@ class _LoginViewState extends State<LoginView>{
                 //Loading
                 child: authViewModel.isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : ElevatedButton(
+                    : PrimaryButton(
                         onPressed: _submit,
-                        child: const Text('Zaloguj', style: TextStyle(fontSize: 18)),
+                        label: 'Continue',
                       ),
               ),
 
@@ -102,6 +110,7 @@ class _LoginViewState extends State<LoginView>{
               )
             ],
           ),
+        ),
         ),
       ),
     );

@@ -10,15 +10,11 @@ import 'viewmodels/auth_viewmodel.dart';
 import 'viewmodels/user_viewmodel.dart';
 import 'viewmodels/note_viewmodel.dart';
 
-// Views
-import 'views/onboarding_view.dart';
-import 'views/login_view.dart';
-import 'views/home_view.dart';
-
 // Theme
 import 'theme/AppTheme.dart';
 
-
+// Router
+import 'app_router.dart';
 
 
 void main() async {
@@ -48,42 +44,17 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Simple Note',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: Consumer<AppStateViewModel>(
-        builder: (context, appState, child) {
-
-          //Adjust view to app state
-          switch (appState.currentState) {
-
-            //App is loading data
-            case AppState.loading:
-              // Loading screen
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            
-            //First app run
-            case AppState.onboarding:
-              return const OnboardingView();
-            
-            //User is not logged in
-            case AppState.unauthenticated:
-              return const LoginView();
-            
-            //User is logged in
-            case AppState.authenticated:
-              return const HomeView(); 
-          }
-        },
-      ),
-
-
+    return Builder(
+      builder: (innerContext){
+      final appStateViewModel = Provider.of<AppStateViewModel>(innerContext, listen: false);
+      final router = AppRouter.createRouter(appStateViewModel);
+      return MaterialApp.router(
+        title: 'Simple Note',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        routerConfig: router,
+        );
+      },
     );
   }
-
-
-  
 }

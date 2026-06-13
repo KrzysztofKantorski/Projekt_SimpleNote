@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_note/viewmodels/auth_viewmodel.dart';
 import '../viewmodels/user_viewmodel.dart';
 import '../viewmodels/note_viewmodel.dart';
 import '../viewmodels/app_state_viewmodel.dart';
 import '../components/menu_widgets/menu_widgets.dart';
-import 'search_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -69,11 +69,7 @@ class _HomeViewState extends State<HomeView>{
                       // TODO: otwieranie wyszukiwarki notatek innych użytkowników
                       icon: const Icon(Icons.search, size: 24),
                       onPressed: ()  {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const SearchNotesView()),
-                        );
+                        context.pushNamed('search');
                        },
                      ),
                     //Logout button

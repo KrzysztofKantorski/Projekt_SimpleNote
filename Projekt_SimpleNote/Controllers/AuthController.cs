@@ -70,7 +70,7 @@ namespace Projekt_SimpleNote.Controllers
             {
                 HttpOnly = true, 
                 Expires = DateTime.UtcNow.AddDays(7), 
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.Lax,
             };
 
             Response.Cookies.Append("refreshToken", result.Tokens!.RefreshToken, cookieOptions);

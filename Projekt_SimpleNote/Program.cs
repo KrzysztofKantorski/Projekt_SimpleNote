@@ -50,6 +50,7 @@ builder.Services.AddScoped<IAdminUsersService, AdminUsersService>();
 builder.Services.AddScoped<IAdminReactionsService, AdminReactionsSerwice>();
 builder.Services.AddScoped<IAdminSubjectsService, AdminSubjectsService>();
 builder.Services.AddScoped<IAdminCommentsService, AdminCommentsService>();
+builder.Services.AddScoped<IAdminStatisticsService, AdminStatisticsService>();
 
 
 

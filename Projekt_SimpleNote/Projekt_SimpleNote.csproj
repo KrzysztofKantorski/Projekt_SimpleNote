@@ -23,6 +23,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.OpenApi" Version="1.6.22" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageReference Include="PlantUml.Net" Version="1.4.80" />
     <PackageReference Include="Scalar.AspNetCore" Version="1.2.72" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />

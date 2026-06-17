@@ -1,4 +1,4 @@
-﻿using Projekt_SimpleNote.Dto.Comments;// Upewnij się, że plik NoteCommentsDto istnieje w tym namespace
+﻿using Projekt_SimpleNote.Dto.Comments;
 
 namespace Projekt_SimpleNote.Services.Interfaces
 {

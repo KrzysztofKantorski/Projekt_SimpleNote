@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_note/viewmodels/auth_viewmodel.dart';
+import 'package:simple_note/viewmodels/comment_viewmodel.dart';
 import '../viewmodels/user_viewmodel.dart';
 import '../viewmodels/note_viewmodel.dart';
 import '../viewmodels/app_state_viewmodel.dart';
 import '../components/menu_widgets/menu_widgets.dart';
+import '../viewmodels/reaction_viewmodel.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -32,10 +34,7 @@ class _HomeViewState extends State<HomeView>{
         const SnackBar(content: Text('Dodawanie notatki — wkrótce!')),
       );
     } else if (index == 1) {
-      // TODO: ekran dodawania notatki
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dodawanie notatki — wkrótce!')),
-      );
+      context.pushNamed('add_note');
     } else if (index == 2) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Dodawanie notatki — wkrótce!')),
@@ -151,30 +150,43 @@ Widget _buildBodyContent(NoteViewModel viewModel) {
     }
 
     // Renderujemy listę wszystkich notatek użytkownika
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: viewModel.notes!.length,
-      itemBuilder: (_, i) => SnNoteListItem(
-        note: viewModel.notes![i],
-        // onTap: () {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (_) => NotePreviewScreen(
-        //         note: viewModel.notes![i],
-        //       ),
-        //     ),
-        //   );
-        // },
-        onDownload: () {
-          // TODO: download notatki
-        },
-      ),
-    );
-  }
+  return ListView.builder(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    // Używamy viewModel (zgodnie z definicją wyżej w Twoim buildzie)
+    itemCount: viewModel.notes.length, 
+    
+    // TUTAJ BYŁ BRAKUJĄCY ELEMENT: Musimy otworzyć funkcję itemBuilder
+    itemBuilder: (context, index) {
+      final currentNote = viewModel.notes[index];
 
-  return const Center(
-    child: Text('Brak danych do wyświetlenia'),
+      return SnNoteListItem(
+        title: currentNote.title,
+        content: currentNote.content,
+        // Jeśli w NoteModel nie masz jeszcze pola 'timeAgo', 
+        // wpisz na chwilę np. '1 min temu' lub użyj właściwości z modelu
+        timeAgo: currentNote.timeAgo, 
+        onTap: () {
+          context.read<CommentViewModel>().clearComments();
+          context.read<CommentViewModel>().fetchComments(currentNote.id);
+
+          context.read<ReactionViewModel>().clearReactions();
+          context.read<ReactionViewModel>().fetchNoteReactions(currentNote.id);
+
+          context.pushNamed(
+            'note_details',
+            extra: currentNote, // Przekazujemy model notatki do ekranu szczegółów
+          );
+        },
+        onEditClick: () {
+          // 1. Ładujemy dane do ViewModelu
+          context.read<NoteViewModel>().selectNoteForEditing(currentNote);
+          
+          // 2. Przechodzimy na ekran edytora przez go_router
+          context.pushNamed('edit_note');
+        },
+      );
+    }, // Zamykamy funkcję itemBuilder
   );
+  }
 }
 }

@@ -74,7 +74,7 @@ namespace Projekt_SimpleNote.Controllers
         public async Task<IActionResult> DeleteComment([FromRoute] long noteId, [FromRoute] long commentId)
         {
             var currentUserId = HttpContext.GetCurrentUserId();
-            var result = await _commentsService.DeleteCommentAsync(noteId, currentUserId, commentId);
+            var result = await _commentsService.DeleteCommentAsync(noteId, commentId, currentUserId);
 
             if (!result.Success)
             {

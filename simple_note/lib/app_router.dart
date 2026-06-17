@@ -1,12 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:simple_note/viewmodels/app_state_viewmodel.dart';
-
+import 'models/note/note_model.dart';
 // Importy Twoich widoków
 import 'views/onboarding_view.dart';
 import 'views/login_view.dart';
 import 'views/home_view.dart';
 import 'views/search_view.dart'; 
+import 'views/addnote_view.dart';
+import 'views/editnote_view.dart';
+import 'views/note_view.dart';
 
 class AppRouter {
   static GoRouter createRouter(AppStateViewModel appStateViewModel) {
@@ -35,6 +37,25 @@ class AppRouter {
               path: 'search',
               name: 'search',
               builder: (context, state) => const SearchNotesView(),
+            ),
+            GoRoute(
+              path: 'add-note', // URL w przeglądarce/głębokim linku to: /home/add-note
+              name: 'add_note',
+              builder: (context, state) => const AddNoteView(),
+            ),
+            GoRoute(
+              path: 'edit', 
+              name: 'edit_note',
+              builder: (context, state) => const NoteEditorView(), // Czysto, bez żadnych parametrów!
+            ),
+            GoRoute(
+              path: 'details',
+              name: 'note_details',
+              builder: (context, state) {
+                // Wyciągamy obiekt przekazany w 'extra' i rzutujemy na NoteModel
+                final noteData = state.extra as NoteModel;
+                return NoteDetailsTestView(note: noteData);
+              },
             ),
           ],
         ),

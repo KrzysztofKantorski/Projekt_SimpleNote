@@ -29,7 +29,7 @@ class TextRecognitionService {
   Future<String?> scanFromCamera() async {
   return await recognizeTextFromImage(source: ImageSource.camera);
 }
-  // Zamknięcie zasobów (dobra praktyka)
+  // Zamknięcie zasobów
   void dispose() {
     _textRecognizer.close();
   }

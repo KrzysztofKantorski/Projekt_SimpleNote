@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:simple_note/viewmodels/app_state_viewmodel.dart';
 import 'models/note/note_model.dart';
-// Importy Twoich widoków
+// Importy widoków
 import 'views/onboarding_view.dart';
 import 'views/login_view.dart';
 import 'views/home_view.dart';
@@ -13,7 +13,6 @@ import 'views/note_view.dart';
 class AppRouter {
   static GoRouter createRouter(AppStateViewModel appStateViewModel) {
     return GoRouter(
-      // Zmieniamy punkt startowy na /login
       initialLocation: '/login',
       refreshListenable: appStateViewModel,
       
@@ -39,20 +38,19 @@ class AppRouter {
               builder: (context, state) => const SearchNotesView(),
             ),
             GoRoute(
-              path: 'add-note', // URL w przeglądarce/głębokim linku to: /home/add-note
+              path: 'add-note',
               name: 'add_note',
               builder: (context, state) => const AddNoteView(),
             ),
             GoRoute(
               path: 'edit', 
               name: 'edit_note',
-              builder: (context, state) => const NoteEditorView(), // Czysto, bez żadnych parametrów!
+              builder: (context, state) => const NoteEditorView(),
             ),
             GoRoute(
               path: 'details',
               name: 'note_details',
               builder: (context, state) {
-                // Wyciągamy obiekt przekazany w 'extra' i rzutujemy na NoteModel
                 final noteData = state.extra as NoteModel;
                 return NoteDetailsTestView(note: noteData);
               },
@@ -61,7 +59,7 @@ class AppRouter {
         ),
       ],
 
-      // === ZMODYFIKOWANA LOGIKA PRZEKIEROWAŃ ===
+      // === LOGIKA PRZEKIEROWAŃ ===
       redirect: (context, state) {
         final AppState status = appStateViewModel.currentState;
         final String currentLocation = state.uri.toString();

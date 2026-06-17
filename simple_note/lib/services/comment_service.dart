@@ -39,7 +39,6 @@ class CommentService {
   }
 
   // === USUWANIE KOMENTARZA (DELETE) ===
-  // Dostosowane do Twojej trasy z backendu: /api/notes/{noteId}/comments/{commentId}
   Future<void> deleteComment(int commentId, int noteId) async {
     try {
       await _dio.delete('/api/notes/$noteId/comments/$commentId');
@@ -48,7 +47,7 @@ class CommentService {
     }
   }
 
-  // === DEKODOWANIE BŁĘDÓW (Zgodne z Twoim szablonem) ===
+  // === DEKODOWANIE BŁĘDÓW ===
   String _extractErrorMessage(DioException e) {
     final data = e.response?.data;
     if (data == null) return 'Błąd komunikacji z serwerem (Kod: ${e.response?.statusCode})';

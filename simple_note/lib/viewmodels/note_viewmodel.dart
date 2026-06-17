@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/note/note_model.dart';
-import '../models/saved_note/saved_note_model.dart';
 import '../models/note/update_note_model.dart';
 import '../services/note_service.dart';
-import '../services/text_recognition_service.dart'; // Twój serwis od ML Kit
+import '../services/text_recognition_service.dart';
 
 class NoteViewModel extends ChangeNotifier {
   final NoteService _noteService = NoteService();
@@ -20,7 +19,6 @@ class NoteViewModel extends ChangeNotifier {
   List<NoteModel> _results = [];
   List<NoteModel> get results => _results;
 
-  // Kontrolery i stan dla widoku dodawania/edycji (ML Kit)
   final TextEditingController contentController = TextEditingController();
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -68,17 +66,15 @@ class NoteViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // 1. Wysyłamy dane na serwer (zapis do bazy)
       await _noteService.addNote(
         title: title,
         content: content,
         isPublic: true,
       );
 
-      // 2. Skoro zapisało się w bazie, pobieramy całą listę na nowo jako NoteModel
       await fetchUsersNotes(); 
       
-      return true; // Sukces, widok może się zamknąć
+      return true;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       return false;
@@ -109,7 +105,7 @@ class NoteViewModel extends ChangeNotifier {
       );
 
       await fetchUsersNotes();
-      clearEditor(); // Czyścimy po udanym zapisie
+      clearEditor();
       return true;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
@@ -119,16 +115,14 @@ class NoteViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-  // === NOWE POLA DLA EDYCJI (MVVM) ===
+  // === NOWE POLA DLA EDYCJI ===
   int? _editingNoteId;
-  final TextEditingController titleController = TextEditingController(); // Przenosimy kontroler tytułu tutaj!
+  final TextEditingController titleController = TextEditingController();
 
-  /// Metoda przygotowująca ViewModel do edycji konkretnej notatki
   void selectNoteForEditing(NoteModel note) {
     _editingNoteId = note.id;
     titleController.text = note.title;
     contentController.text = note.content;
-    // Nie potrzebujemy notifyListeners(), bo wywołamy to tuż przed wejściem na ekran
   }
 
   /// Czyszczenie edytora
@@ -137,7 +131,7 @@ class NoteViewModel extends ChangeNotifier {
     titleController.clear();
     contentController.clear();
   }
-  // === 4. SKANOWANIE TEKSTU (ML KIT INTEGATION) ===
+  // === 4. SKANOWANIE TEKSTU ===
   Future<void> scanTextFromCamera() async {
     _isLoading = true;
     notifyListeners();

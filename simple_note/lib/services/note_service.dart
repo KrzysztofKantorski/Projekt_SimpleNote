@@ -37,7 +37,6 @@ class NoteService {
 
       final response = await _dio.post('/api/notes', data: body);
       
-      // Mapujemy odpowiedź z serwera na obiekt klasy SavedNote
       return NoteModel.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception(_extractErrorMessage(e));
@@ -46,16 +45,14 @@ class NoteService {
 
   Future<NoteModel> editNote({
     required int id,
-    required UpdateNoteRequest request, // Przyjmujemy przygotowany obiekt żądania
+    required UpdateNoteRequest request,
   }) async {
     try {
-      // Wysyłamy żądanie pod adres z ID, a body generuje się samo przez .toJson()
       final response = await _dio.put(
         '/api/notes/$id', 
         data: request.toJson(),
       );
       
-      // Serwer zwraca zaktualizowane dane, które pakujemy w SavedNote
       return NoteModel.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception(_extractErrorMessage(e));

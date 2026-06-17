@@ -1,14 +1,13 @@
 import 'package:dio/dio.dart';
 import 'dio_client.dart';
-import '../models/reaction/reaction_model.dart'; // Upewnij się, że ścieżka do Twoich modeli jest poprawna
+import '../models/reaction/reaction_model.dart';
 
 class ReactionService {
   final Dio _dio = DioClient().dio;
 
-  // 1. Pobieranie listy wszystkich dostępnych typów reakcji (Słownik)
   Future<List<ReactionTypeModel>> getAvailableReactions() async {
     try {
-      final response = await _dio.get('/api/reaction-types'); // Dostosuj jeśli URL brzmi /api/reactions
+      final response = await _dio.get('/api/reaction-types');
       final List<dynamic> rawData = response.data;
       return ReactionTypeModel.fromJsonList(rawData);
     } on DioException catch (e) {
@@ -16,7 +15,6 @@ class ReactionService {
     }
   }
 
-  // 2. Pobieranie podsumowania reakcji dla konkretnej notatki
   Future<List<NoteReactionModel>> getNoteReactionsSummary(int noteId) async {
     try {
       final response = await _dio.get('/api/notes/$noteId/reactions');
@@ -27,7 +25,6 @@ class ReactionService {
     }
   }
 
-  // 3. Dodawanie reakcji do notatki (POST /api/notes/{noteId}/reactions/{reactionTypeId})
   Future<void> addReaction(int noteId, int reactionTypeId) async {
     try {
       await _dio.post('/api/notes/$noteId/reactions/$reactionTypeId');
@@ -36,7 +33,6 @@ class ReactionService {
     }
   }
 
-  // 4. Usuwanie reakcji z notatki (DELETE /api/notes/{noteId}/reactions/{reactionTypeId})
   Future<void> removeReaction(int noteId, int reactionTypeId) async {
     try {
       await _dio.delete('/api/notes/$noteId/reactions/$reactionTypeId');

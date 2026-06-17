@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Pojedynczy wiersz notatki na liście (Czyste MVVM - przyjmuje tylko proste typy)
+/// Pojedynczy wiersz notatki na liście
 class SnNoteListItem extends StatelessWidget {
   final String title;
   final String content;
@@ -26,7 +26,6 @@ class SnNoteListItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
-            // Kropka (Bullet)
             const SizedBox(
               width: 20,
               child: Align(
@@ -73,12 +72,10 @@ class SnNoteListItem extends StatelessWidget {
                 ],
               ),
             ),
-            
-            // ZMIANA: Ikona pobierania zmieniona na IKONĘ EDYCJI (Ołówek)
             IconButton(
               onPressed: onEditClick,
               icon: const Icon(
-                Icons.edit_outlined, // Ładny, minimalistyczny ołówek
+                Icons.edit_outlined,
                 size: 20, 
                 color: Color(0xFF666666),
               ),

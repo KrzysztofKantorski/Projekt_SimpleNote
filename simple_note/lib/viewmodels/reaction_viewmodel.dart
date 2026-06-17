@@ -19,9 +19,9 @@ class ReactionViewModel extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  /// Pobranie globalnego słownika reakcji (Warto odpalić np. przy starcie aplikacji raz)
+  // Pobranie globalnego słownika reakcji
   Future<void> fetchAvailableReactions() async {
-    if (_availableReactions.isNotEmpty) return; // Zapobiega ponownemu pobieraniu stałych danych
+    if (_availableReactions.isNotEmpty) return;
     try {
       _availableReactions = await _reactionService.getAvailableReactions();
       notifyListeners();
@@ -30,7 +30,7 @@ class ReactionViewModel extends ChangeNotifier {
     }
   }
 
-  /// Pobranie podsumowania reakcji dla wybranej notatki
+  // Pobranie podsumowania reakcji dla wybranej notatki
   Future<void> fetchNoteReactions(int noteId) async {
     _isLoading = true;
     _errorMessage = null;
@@ -46,7 +46,7 @@ class ReactionViewModel extends ChangeNotifier {
     }
   }
 
-  /// Przełączanie reakcji (Dodaj jeśli nie ma, Usuń jeśli już kliknięta)
+  // Przełączanie reakcji
   Future<bool> toggleReaction(int noteId, int reactionTypeId, bool alreadyReacted) async {
     _errorMessage = null;
     notifyListeners();
@@ -69,7 +69,7 @@ class ReactionViewModel extends ChangeNotifier {
     }
   }
 
-  /// Czyszczenie pamięci przed wejściem na inną notatkę (podobnie jak przy komentarzach)
+  // Czyszczenie pamięci przed wejściem na inną notatkę
   void clearReactions() {
     _noteReactions = [];
     _errorMessage = null;

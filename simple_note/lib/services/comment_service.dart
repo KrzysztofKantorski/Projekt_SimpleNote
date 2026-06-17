@@ -1,67 +1,54 @@
 import 'package:dio/dio.dart';
 import 'dio_client.dart';
-import '../models/note/note_model.dart';
-import '../models/note/update_note_model.dart';
+import '../models/comment/comment_model.dart';
 
-
-class NoteService {
+class CommentService {
   final Dio _dio = DioClient().dio;
 
-  Future<List<NoteModel>> getNotes() async {
+  // === POBIERANIE KOMENTARZY DLA NOTATKI (GET) ===
+  Future<List<CommentModel>> getCommentsForNote(int noteId) async {
     try {
-      //Get users notes
-      final response = await _dio.get('/api/notes');
+      final response = await _dio.get('/api/notes/$noteId/comments');
+      
       final List<dynamic> rawData = response.data;
-      return rawData.map((json) => NoteModel.fromJson(json)).toList();
-    } 
-    on DioException catch (e) {
+      return CommentModel.fromJsonList(rawData);
+    } on DioException catch (e) {
       throw Exception(_extractErrorMessage(e));
     }
   }
 
-  Future<NoteModel> addNote({
-    required String title,
+  // === DODAWANIE NOWEGO KOMENTARZA (POST) ===
+  Future<void> addComment({
+    required int noteId,
     required String content,
-    String? subjectName,
-    List<String>? tagNames,
-    bool isPublic = true,
+    int? parentCommentId,
   }) async {
     try {
       final Map<String, dynamic> body = {
-        "title": title,
-        "content": content,
-        "subjectName": subjectName,
-        "tagNames": tagNames ?? [""],
-        "isPublic": isPublic,
+        'Content': content,
+        if (parentCommentId != null) 'ParentCommentId': parentCommentId,
       };
 
-      final response = await _dio.post('/api/notes', data: body);
-      
-      // Mapujemy odpowiedź z serwera na obiekt klasy SavedNote
-      return NoteModel.fromJson(response.data);
-    } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e));
-    }
-  }
-
-  Future<NoteModel> editNote({
-    required int id,
-    required UpdateNoteRequest request, // Przyjmujemy przygotowany obiekt żądania
-  }) async {
-    try {
-      // Wysyłamy żądanie pod adres z ID, a body generuje się samo przez .toJson()
-      final response = await _dio.put(
-        '/api/notes/$id', 
-        data: request.toJson(),
+      await _dio.post(
+        '/api/notes/$noteId/comments',
+        data: body,
       );
-      
-      // Serwer zwraca zaktualizowane dane, które pakujemy w SavedNote
-      return NoteModel.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception(_extractErrorMessage(e));
     }
   }
 
+  // === USUWANIE KOMENTARZA (DELETE) ===
+  // Dostosowane do Twojej trasy z backendu: /api/notes/{noteId}/comments/{commentId}
+  Future<void> deleteComment(int commentId, int noteId) async {
+    try {
+      await _dio.delete('/api/notes/$noteId/comments/$commentId');
+    } on DioException catch (e) {
+      throw Exception(_extractErrorMessage(e));
+    }
+  }
+
+  // === DEKODOWANIE BŁĘDÓW (Zgodne z Twoim szablonem) ===
   String _extractErrorMessage(DioException e) {
     final data = e.response?.data;
     if (data == null) return 'Błąd komunikacji z serwerem (Kod: ${e.response?.statusCode})';
@@ -78,7 +65,6 @@ class NoteService {
       if (data.containsKey('message') && data['message'] != null) return data['message'].toString();
       if (data.containsKey('title') && data['title'] != null) return data['title'].toString();
     }
-
     return 'Wystąpił błąd serwera (Kod: ${e.response?.statusCode})';
   }
 }

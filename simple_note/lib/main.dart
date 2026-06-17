@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+
 // Services
 import 'services/dio_client.dart';
 
@@ -9,6 +10,8 @@ import 'viewmodels/app_state_viewmodel.dart';
 import 'viewmodels/auth_viewmodel.dart';
 import 'viewmodels/user_viewmodel.dart';
 import 'viewmodels/note_viewmodel.dart';
+import 'viewmodels/comment_viewmodel.dart';
+import 'viewmodels/reaction_viewmodel.dart';
 
 // Theme
 import 'theme/AppTheme.dart';
@@ -32,6 +35,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => NoteViewModel()),
         ChangeNotifierProvider(create: (_) => UserViewModel()),
+        ChangeNotifierProvider(create: (_) => CommentViewModel()),
+        ChangeNotifierProvider(create: (_) => ReactionViewModel())
       ],
       child: const MyApp(),
     ),

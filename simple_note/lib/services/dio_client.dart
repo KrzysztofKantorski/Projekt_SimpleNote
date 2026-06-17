@@ -17,7 +17,7 @@ class DioClient{
     dio = Dio(BaseOptions(
 
       //Change to port from backend
-      baseUrl: 'http://10.0.2.2:5168', 
+      baseUrl: 'http://localhost:5168', 
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
     ));

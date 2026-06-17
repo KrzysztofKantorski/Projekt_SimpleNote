@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/note/note_model.dart';
 import '../viewmodels/comment_viewmodel.dart';
-import '../viewmodels/reaction_viewmodel.dart'; // Import nowego ViewModelu
+import '../viewmodels/reaction_viewmodel.dart';
 
 class NoteDetailsTestView extends StatelessWidget {
   final NoteModel note;
@@ -12,67 +12,116 @@ class NoteDetailsTestView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final commentViewModel = context.watch<CommentViewModel>();
-    final reactionViewModel = context.watch<ReactionViewModel>(); // Słuchamy reakcji
+    final reactionViewModel = context.watch<ReactionViewModel>();
     final int noteId = note.id;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Szczegóły i Komentarze'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        centerTitle: true,
+        title: Text(
+          note.title.isNotEmpty ? note.title : 'Notes Title',
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // === 1. DANE NOTATKI ===
-              Text('TYTUŁ: ${note.title}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Text('TREŚĆ:\n${note.content}', style: const TextStyle(fontSize: 16)),
-              const SizedBox(height: 16),
-
-              // === NOWOŚĆ: SEKCJA REAKCJI ===
-              _buildReactionsSection(context, reactionViewModel, noteId),
-              
-              const Divider(height: 40, thickness: 2, color: Colors.black12),
-              
-              // === 2. DODAWANIE KOMENTARZA ===
-              Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // === 1. DANE NOTATKI ===
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: commentViewModel.commentController,
-                      decoration: const InputDecoration(hintText: 'Napisz komentarz...'),
-                    ),
+                  const SizedBox(height: 16),
+                  Text(
+                    note.content.isNotEmpty ? note.content : 'Notes Sample / first side of notes here',
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
-                  IconButton(
-                    icon: commentViewModel.isLoading 
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(Icons.send),
-                    onPressed: commentViewModel.isLoading 
-                        ? null 
-                        : () async {
-                            final success = await context.read<CommentViewModel>().addComment(noteId);
-                            if (!success && commentViewModel.errorMessage != null && context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(backgroundColor: Colors.red, content: Text(commentViewModel.errorMessage!)),
-                              );
-                            }
-                          },
+                  const SizedBox(height: 40),
+                  const Divider(height: 1, thickness: 1, color: Colors.black12),
+                  const SizedBox(height: 16),
+
+                  // === NAGŁÓWEK KOMENTARZY I REAKCJE ===
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Comments',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      _buildReactionsSection(context, reactionViewModel, noteId),
+                    ],
                   ),
+                  const SizedBox(height: 16),
                 ],
               ),
-              const SizedBox(height: 20),
+            ),
 
-              // === 3. LISTA KOMENTARZY ===
-              const Text('KOMENTARZE:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              
-              Expanded(
-                child: _buildCommentsList(commentViewModel, noteId),
+            // === 3. LISTA KOMENTARZY ===
+            Expanded(
+              child: _buildCommentsList(commentViewModel, noteId),
+            ),
+
+            // === 2. DOLNY PANEL (DODAWANIE KOMENTARZA) ===
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              child: Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 12),
+                    const Icon(Icons.comment_outlined, size: 16, color: Colors.black54),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: commentViewModel.commentController,
+                        style: const TextStyle(fontSize: 13),
+                        decoration: const InputDecoration(
+                          hintText: 'Add a comment',
+                          hintStyle: TextStyle(color: Colors.black54, fontSize: 13),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(vertical: 10),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: commentViewModel.isLoading
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.send, size: 16, color: Colors.black54),
+                      onPressed: commentViewModel.isLoading
+                          ? null
+                          : () async {
+                              final success = await context.read<CommentViewModel>().addComment(noteId);
+                              if (!success && commentViewModel.errorMessage != null && context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(backgroundColor: Colors.red, content: Text(commentViewModel.errorMessage!)),
+                                );
+                              }
+                            },
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -80,42 +129,47 @@ class NoteDetailsTestView extends StatelessWidget {
 
   // === BUDOWANIE SEKCJI REAKCJI ===
   Widget _buildReactionsSection(BuildContext context, ReactionViewModel viewModel, int noteId) {
-    return Wrap(
-      spacing: 8.0,
-      runSpacing: 4.0,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        // 1. Renderujemy reakcje już dodane pod notatką
         ...viewModel.noteReactions.map((reaction) {
-          return FilterChip(
-            label: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Jeśli masz obrazki URL z backendu, użyj Image.network, dla testów może być tekst/ikona
-                Text(reaction.iconUrl.isNotEmpty ? reaction.iconUrl : "👍"), 
-                const SizedBox(width: 4),
-                Text('${reaction.count}', style: TextStyle(fontWeight: reaction.reactedByCurrentUser ? FontWeight.bold : FontWeight.normal)),
-              ],
-            ),
-            selected: reaction.reactedByCurrentUser,
-            selectedColor: Colors.blue.withOpacity(0.2),
-            onSelected: (_) async {
+          return InkWell(
+            onTap: () async {
               final success = await viewModel.toggleReaction(noteId, reaction.reactionTypeId, reaction.reactedByCurrentUser);
               if (!success && viewModel.errorMessage != null && context.mounted) {
                 _showErrorSnackBar(context, viewModel.errorMessage!);
               }
             },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+              child: Row(
+                children: [
+                  Text(
+                    reaction.iconUrl.isNotEmpty ? reaction.iconUrl : "♡",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: reaction.reactedByCurrentUser ? Colors.red : Colors.black54,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${reaction.count}',
+                    style: const TextStyle(color: Colors.black54, fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
           );
         }),
-
-        // 2. Przycisk '+' do otwierania panelu wyboru nowej reakcji
-        IconButton(
-          icon: const Icon(Icons.add_reaction_outlined, color: Colors.grey),
-          onPressed: () {
-            // Upewniamy się, że słownik jest pobrany przed pokazaniem menu
+        InkWell(
+          onTap: () {
             context.read<ReactionViewModel>().fetchAvailableReactions();
             _showReactionPicker(context, viewModel, noteId);
           },
+          child: const Padding(
+            padding: EdgeInsets.only(left: 4.0),
+            child: Icon(Icons.add_reaction_outlined, size: 18, color: Colors.black54),
+          ),
         ),
       ],
     );
@@ -125,11 +179,15 @@ class NoteDetailsTestView extends StatelessWidget {
   void _showReactionPicker(BuildContext context, ReactionViewModel viewModel, int noteId) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) {
         return Consumer<ReactionViewModel>(
           builder: (context, rVM, child) {
             if (rVM.availableReactions.isEmpty) {
-              return const SizedBox(height: 100, child: Center(child: CircularProgressIndicator()));
+              return const SizedBox(height: 100, child: Center(child: CircularProgressIndicator(color: Colors.black)));
             }
 
             return Container(
@@ -138,7 +196,7 @@ class NoteDetailsTestView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Dodaj reakcję:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Dodaj reakcję:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
                   const SizedBox(height: 10),
                   Expanded(
                     child: ListView.builder(
@@ -146,13 +204,11 @@ class NoteDetailsTestView extends StatelessWidget {
                       itemCount: rVM.availableReactions.length,
                       itemBuilder: (context, index) {
                         final type = rVM.availableReactions[index];
-                        
-                        // Sprawdzamy czy użytkownik przypadkiem już nie zaznaczył tej konkretnej ikony
                         final bool alreadySelected = rVM.noteReactions.any((nr) => nr.reactionTypeId == type.id && nr.reactedByCurrentUser);
 
                         return InkWell(
                           onTap: () async {
-                            Navigator.pop(context); // Zamykamy dolny panel
+                            Navigator.pop(context);
                             final success = await rVM.toggleReaction(noteId, type.id, alreadySelected);
                             if (!success && rVM.errorMessage != null && context.mounted) {
                               _showErrorSnackBar(context, rVM.errorMessage!);
@@ -162,7 +218,7 @@ class NoteDetailsTestView extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 12.0),
                             child: CircleAvatar(
                               backgroundColor: Colors.grey.shade100,
-                              child: Text(type.imageUrl.isNotEmpty ? type.imageUrl : "😀"), // Wyświetla emoji lub grafikę
+                              child: Text(type.imageUrl.isNotEmpty ? type.imageUrl : "😀"),
                             ),
                           ),
                         );
@@ -184,40 +240,50 @@ class NoteDetailsTestView extends StatelessWidget {
     );
   }
 
-  // === ISTNIEJĄCA LISTA KOMENTARZY (Zostaje bez zmian) ===
+  // === LISTA KOMENTARZY (BEZ IKONEK UŻYTKOWNIKÓW) ===
   Widget _buildCommentsList(CommentViewModel viewModel, int noteId) {
-    if (viewModel.isLoading && viewModel.comments.isEmpty) return const Center(child: CircularProgressIndicator());
+    if (viewModel.isLoading && viewModel.comments.isEmpty) return const Center(child: CircularProgressIndicator(color: Colors.black));
     if (viewModel.errorMessage != null && viewModel.comments.isEmpty) return Center(child: Text('❌ Błąd: ${viewModel.errorMessage}', style: const TextStyle(color: Colors.red)));
-    if (viewModel.comments.isEmpty) return const Center(child: Text('Brak komentarzy dla tej notatki.'));
+    if (viewModel.comments.isEmpty) return const Center(child: Text('Brak komentarzy dla tej notatki.', style: TextStyle(color: Colors.black54)));
 
     return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       itemCount: viewModel.comments.length,
       itemBuilder: (context, index) {
         final comment = viewModel.comments[index];
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column( crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(comment.authorName, style: const TextStyle(fontWeight: FontWeight.bold)),
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 24.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      comment.authorName.isNotEmpty ? comment.authorName : 'User name',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black),
+                    ),
                     const SizedBox(height: 4),
-                    Text(comment.content),
-                  ]),
+                    Text(
+                      comment.content,
+                      style: const TextStyle(color: Colors.black54, fontSize: 13),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
-                  onPressed: () async {
-                    final success = await viewModel.deleteComment(comment.id, noteId);
-                    if (!success && viewModel.errorMessage != null && context.mounted) {
-                      _showErrorSnackBar(context, viewModel.errorMessage!);
-                    }
-                  },
-                ),
-              ],
-            ),
+              ),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: const Icon(Icons.delete_outline, size: 16, color: Colors.black26),
+                onPressed: () async {
+                  final success = await viewModel.deleteComment(comment.id, noteId);
+                  if (!success && viewModel.errorMessage != null && context.mounted) {
+                    _showErrorSnackBar(context, viewModel.errorMessage!);
+                  }
+                },
+              ),
+            ],
           ),
         );
       },

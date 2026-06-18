@@ -12,6 +12,8 @@ import 'viewmodels/user_viewmodel.dart';
 import 'viewmodels/note_viewmodel.dart';
 import 'viewmodels/comment_viewmodel.dart';
 import 'viewmodels/reaction_viewmodel.dart';
+import 'viewmodels/community_viewmodel.dart';
+import 'viewmodels/saved_note_viewmodel.dart';
 
 // Theme
 import 'theme/AppTheme.dart';
@@ -36,7 +38,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => NoteViewModel()),
         ChangeNotifierProvider(create: (_) => UserViewModel()),
         ChangeNotifierProvider(create: (_) => CommentViewModel()),
-        ChangeNotifierProvider(create: (_) => ReactionViewModel())
+        ChangeNotifierProvider(create: (_) => ReactionViewModel()),
+        ChangeNotifierProvider(create: (_) => CommunityViewModel()),
+        ChangeNotifierProvider(create: (_) => SavedNoteViewModel())
+        
       ],
       child: const MyApp(),
     ),

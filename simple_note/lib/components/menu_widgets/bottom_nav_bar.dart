@@ -30,11 +30,13 @@ class SnBottomNavBar extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         items: [
           // Dom
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+          BottomNavigationBarItem(
+          icon: Icon(
+            currentIndex == 0? Icons.home_filled : Icons.home_outlined,
+            color: currentIndex == 0 ? Colors.black : Colors.grey,
           ),
+          label: 'Notatki',
+        ),
           // Dodaj notatkę (TODO)
           BottomNavigationBarItem(
             icon: Container(
@@ -46,13 +48,16 @@ class SnBottomNavBar extends StatelessWidget {
               ),
               child: const Icon(Icons.add, size: 20, color: Colors.black),
             ),
-            label: 'Add',
+            label: 'Dodaj',
           ),
           // Avatar użytkownika
           BottomNavigationBarItem(
-            icon: _AvatarIcon(url: avatarUrl, isActive: currentIndex == 2),
-            label: 'Profile',
+          icon: Icon(
+            currentIndex == 2 ? Icons.groups_rounded : Icons.groups_outlined,
+            color: currentIndex == 2 ? Colors.black : Colors.grey,
           ),
+          label: 'Społeczność',
+        ),
         ],
         selectedItemColor: Colors.black,
         unselectedItemColor: const Color(0xFF888888),

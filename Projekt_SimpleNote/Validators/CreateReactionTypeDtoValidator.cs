@@ -16,7 +16,7 @@ namespace Projekt_SimpleNote.Validators
                 RuleFor(x => x.IconUrl)
                     .NotEmpty().WithMessage("Icon image path is required.")
                     .MaximumLength(255).WithMessage(".Incorrect image path.")
-                    .MinimumLength(3).WithMessage("Incorrect image path.");
+                    .MinimumLength(1).WithMessage("Incorrect image path.");
        }
         
     }

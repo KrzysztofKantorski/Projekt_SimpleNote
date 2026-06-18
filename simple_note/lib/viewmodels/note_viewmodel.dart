@@ -13,35 +13,12 @@ class NoteViewModel extends ChangeNotifier {
   List<NoteModel> _notes = [];
   List<NoteModel> get notes => _notes;
 
-  String _query = '';
-  String get query => _query;
-
-  List<NoteModel> _results = [];
-  List<NoteModel> get results => _results;
-
   final TextEditingController contentController = TextEditingController();
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
-
-  // === 1. POBIERANIE NOTATEK Z API ===
-
-  void search(String q) {
-    _query = q;
-    if (q.trim().isEmpty) {
-      _results = [];
-    } else {
-      // Filtrujemy po tytule lub treści notatki (ignorując wielkość liter)
-      _results = _notes.where((note) {
-        final titleMatch = note.title.toLowerCase().contains(q.toLowerCase());
-        final contentMatch = note.content.toLowerCase().contains(q.toLowerCase());
-        return titleMatch || contentMatch;
-      }).toList();
-    }
-    notifyListeners(); // Odświeża widok wyszukiwania przy każdej wpisanej literze
-  }
 
   // === 1. POBIERANIE NOTATEK Z API ===
   Future<void> fetchUsersNotes() async {
@@ -60,7 +37,7 @@ class NoteViewModel extends ChangeNotifier {
   }
 
  // === 2. DODAWANIE NOWEJ NOTATKI (POST) ===
-  Future<bool> addNewNote({required String title, required String content}) async {
+  Future<bool> addNewNote({required String title, required String content, required bool isPublic}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -69,7 +46,7 @@ class NoteViewModel extends ChangeNotifier {
       await _noteService.addNote(
         title: title,
         content: content,
-        isPublic: true,
+        isPublic: isPublic,
       );
 
       await fetchUsersNotes(); 
@@ -85,7 +62,7 @@ class NoteViewModel extends ChangeNotifier {
   }
 
   // === 3. EDYCJA ISTNIEJĄCEJ NOTATKI (PUT) ===
-  Future<bool> updateNote() async {
+  Future<bool> updateNote({required bool isPublic}) async {
     if (_editingNoteId == null) return false;
     
     _isLoading = true;
@@ -96,7 +73,7 @@ class NoteViewModel extends ChangeNotifier {
       final request = UpdateNoteRequest(
         title: titleController.text.trim(),
         content: contentController.text.trim(),
-        isPublic: true,
+        isPublic: isPublic,
       );
 
       await _noteService.editNote(
@@ -132,24 +109,27 @@ class NoteViewModel extends ChangeNotifier {
     contentController.clear();
   }
   // === 4. SKANOWANIE TEKSTU ===
-  Future<void> scanTextFromCamera() async {
+  Future<void> scanTextAndAppend(ImageSource source) async {
     _isLoading = true;
     notifyListeners();
 
-    // Serwis odpala aparat i wyciąga tekst
-    final String? scannedText = await _recognitionService.scanFromCamera();
-
-    if (scannedText != null && scannedText.isNotEmpty) {
-      // Jeśli w polu coś już było, doklejamy od nowej linii
-      if (contentController.text.isEmpty) {
-        contentController.text = scannedText;
-      } else {
-        contentController.text += "\n$scannedText";
+    try {
+      final scannedText = await _recognitionService.recognizeTextFromImage(source: source);
+      
+      if (scannedText != null && scannedText.trim().isNotEmpty) {
+        // Jeśli w edytorze już coś jest, dodajemy tekst w nowej linii
+        if (contentController.text.isNotEmpty) {
+          contentController.text += '\n$scannedText';
+        } else {
+          contentController.text = scannedText;
+        }
       }
+    } catch (e) {
+      _errorMessage = "Nie udało się rozpoznać tekstu: $e";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   @override

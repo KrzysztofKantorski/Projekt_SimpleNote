@@ -38,7 +38,7 @@ class NoteDetailsTestView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // === 1. DANE NOTATKI ===
+            // Dane notatki
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
@@ -53,7 +53,7 @@ class NoteDetailsTestView extends StatelessWidget {
                   const Divider(height: 1, thickness: 1, color: Colors.black12),
                   const SizedBox(height: 16),
 
-                  // === NAGŁÓWEK KOMENTARZY I REAKCJE ===
+                  // Nagłówek komentarzy i reakcje
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -69,12 +69,12 @@ class NoteDetailsTestView extends StatelessWidget {
               ),
             ),
 
-            // === 3. LISTA KOMENTARZY ===
+            // Lista komentarzy
             Expanded(
               child: _buildCommentsList(commentViewModel, noteId),
             ),
 
-            // === 2. DOLNY PANEL (DODAWANIE KOMENTARZA) ===
+            // Dodawanie komentarza
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               child: Container(
@@ -127,7 +127,6 @@ class NoteDetailsTestView extends StatelessWidget {
     );
   }
 
-  // === BUDOWANIE SEKCJI REAKCJI ===
   Widget _buildReactionsSection(BuildContext context, ReactionViewModel viewModel, int noteId) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -175,7 +174,7 @@ class NoteDetailsTestView extends StatelessWidget {
     );
   }
 
-  // === DOLNY PANEL (BOTTOM SHEET) DO WYBORU REAKCJI ===
+  // wybór reakcji
   void _showReactionPicker(BuildContext context, ReactionViewModel viewModel, int noteId) {
     showModalBottomSheet(
       context: context,
@@ -240,7 +239,7 @@ class NoteDetailsTestView extends StatelessWidget {
     );
   }
 
-  // === LISTA KOMENTARZY (BEZ IKONEK UŻYTKOWNIKÓW) ===
+  // lista komentarzy
   Widget _buildCommentsList(CommentViewModel viewModel, int noteId) {
     if (viewModel.isLoading && viewModel.comments.isEmpty) return const Center(child: CircularProgressIndicator(color: Colors.black));
     if (viewModel.errorMessage != null && viewModel.comments.isEmpty) return Center(child: Text('❌ Błąd: ${viewModel.errorMessage}', style: const TextStyle(color: Colors.red)));

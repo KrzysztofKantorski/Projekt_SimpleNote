@@ -5,10 +5,10 @@ import 'models/note/note_model.dart';
 import 'views/onboarding_view.dart';
 import 'views/login_view.dart';
 import 'views/home_view.dart';
-import 'views/search_view.dart'; 
 import 'views/addnote_view.dart';
 import 'views/editnote_view.dart';
 import 'views/note_view.dart';
+import 'views/community_view.dart';
 
 class AppRouter {
   static GoRouter createRouter(AppStateViewModel appStateViewModel) {
@@ -33,11 +33,6 @@ class AppRouter {
           builder: (context, state) => const HomeView(),
           routes: [
             GoRoute(
-              path: 'search',
-              name: 'search',
-              builder: (context, state) => const SearchNotesView(),
-            ),
-            GoRoute(
               path: 'add-note',
               name: 'add_note',
               builder: (context, state) => const AddNoteView(),
@@ -55,6 +50,10 @@ class AppRouter {
                 return NoteDetailsTestView(note: noteData);
               },
             ),
+            GoRoute(
+              path: 'community',
+              name: 'community',
+              builder: (context, state) => const CommunityTestView(),)
           ],
         ),
       ],
@@ -64,23 +63,17 @@ class AppRouter {
         final AppState status = appStateViewModel.currentState;
         final String currentLocation = state.uri.toString();
 
-        // 1. Jeśli aplikacja JEST W TRAKCIE ŁADOWANIA, nie rób żadnych przekierowań.
-        // Pozwól jej dokończyć initializeAppState() na ekranie startowym.
         if (status == AppState.loading) {
           return null; 
         }
-
-        // 2. Jeśli trzeba pokazać onboarding
         if (status == AppState.onboarding && currentLocation != '/onboarding') {
           return '/onboarding';
         }
 
-        // 3. Jeśli użytkownik jest NIEZALOGOWANY
         if (status == AppState.unauthenticated && currentLocation != '/login' && currentLocation != '/onboarding') {
           return '/login';
         }
 
-        // 4. Jeśli użytkownik JEST ZALOGOWANY, a próbuje wrócić na ekrany startowe
         if (status == AppState.authenticated && (currentLocation == '/login' || currentLocation == '/onboarding')) {
           return '/home';
         }

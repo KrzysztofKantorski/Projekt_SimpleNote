@@ -5,7 +5,7 @@ import '../models/comment/comment_model.dart';
 class CommentService {
   final Dio _dio = DioClient().dio;
 
-  // === POBIERANIE KOMENTARZY DLA NOTATKI (GET) ===
+  // pobieranie komentarzy dla notatki
   Future<List<CommentModel>> getCommentsForNote(int noteId) async {
     try {
       final response = await _dio.get('/api/notes/$noteId/comments');
@@ -17,7 +17,7 @@ class CommentService {
     }
   }
 
-  // === DODAWANIE NOWEGO KOMENTARZA (POST) ===
+  // dodawanie nowego komentarza
   Future<void> addComment({
     required int noteId,
     required String content,
@@ -38,7 +38,7 @@ class CommentService {
     }
   }
 
-  // === USUWANIE KOMENTARZA (DELETE) ===
+  // usuwanie komentarza
   Future<void> deleteComment(int commentId, int noteId) async {
     try {
       await _dio.delete('/api/notes/$noteId/comments/$commentId');
@@ -47,7 +47,6 @@ class CommentService {
     }
   }
 
-  // === DEKODOWANIE BŁĘDÓW ===
   String _extractErrorMessage(DioException e) {
     final data = e.response?.data;
     if (data == null) return 'Błąd komunikacji z serwerem (Kod: ${e.response?.statusCode})';

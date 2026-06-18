@@ -1,35 +1,61 @@
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class TextRecognitionService {
   final ImagePicker _imagePicker = ImagePicker();
   
   final TextRecognizer _textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
 
-  /// Funkcja, która otwiera aparat/galerię, robi zdjęcie i wyciąga z niego tekst
+  Future<bool> _requestCameraPermission() async {
+    var status = await Permission.camera.status;
+
+    if (status.isGranted) {
+      return true;
+    }
+
+    if (status.isDenied || status.isLimited) {
+      final result = await Permission.camera.request();
+      return result.isGranted;
+    }
+
+    if (status.isPermanentlyDenied) {
+      print("❌ Aparat trwale zablokowany w systemie. Otwieram ustawienia...");
+      await openAppSettings(); // Otwiera systemowe ustawienia Twojej aplikacji
+      return false;
+    }
+
+    return false;
+  }
+
   Future<String?> recognizeTextFromImage({required ImageSource source}) async {
     try {
-      // 1. Wybierz/zrób zdjęcie
       final XFile? image = await _imagePicker.pickImage(source: source);
-      if (image == null) return null; // Użytkownik anulował
+      if (image == null) return null;
 
-      // 2. Przekształć plik na InputImage wymagany przez ML Kit
       final inputImage = InputImage.fromFilePath(image.path);
 
-      // 3. Przetwórz obraz i wyciągnij tekst
       final RecognizedText recognizedText = await _textRecognizer.processImage(inputImage);
 
-      // 4. Zwróć scalony tekst
       return recognizedText.text;
     } catch (e) {
-      print("❌ Błąd rozpoznawania tekstu: $e");
+      print("Błąd rozpoznawania tekstu: $e");
       return null;
     }
   }
+
   Future<String?> scanFromCamera() async {
-  return await recognizeTextFromImage(source: ImageSource.camera);
-}
-  // Zamknięcie zasobów
+
+    final hasPermission = await _requestCameraPermission();
+    
+    if (!hasPermission) {
+      print("Skanowanie przerwane: brak uprawnień do aparatu.");
+      return null; 
+    }
+
+    return await recognizeTextFromImage(source: ImageSource.camera);
+  }
+
   void dispose() {
     _textRecognizer.close();
   }

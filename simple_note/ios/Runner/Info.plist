@@ -15,6 +15,10 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
+	<key>NSCameraUsageDescription</key>
+	<string>Aplikacja wymaga dostępu do aparatu, aby móc skanować tekst ze zdjęć i dokumentów.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Aplikacja wymaga dostępu do galerii, aby móc importować zdjęcia do rozpoznawania tekstu.</string>
 	<string>simple_note</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>

@@ -13,7 +13,7 @@ using Scalar.AspNetCore;
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.WebHost.UseUrls("http://0.0.0.0:5168");
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
 
 

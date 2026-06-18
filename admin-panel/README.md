@@ -20,9 +20,9 @@ A comprehensive admin dashboard for the SimpleNote system, built as a Single Pag
 
 ## Screenshots
 
-| Main Dashboard | Reactions Management |
+| Login page | Main page |
 | :---: | :---: |
-| ![Dashboard](./docs/assets/dashboard_placeholder.png) | ![Reactions](./docs/assets/reactions_placeholder.png) |
+| ![Login](./images/1.png) | ![Main page](./images/2.png) |
 
 ### Prerequisites
 * Node.js (version 18+)

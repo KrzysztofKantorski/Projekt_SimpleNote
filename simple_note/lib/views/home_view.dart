@@ -245,7 +245,6 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
             final router = GoRouter.of(context);
             final commentVM = context.read<CommentViewModel>();
             final reactionVM = context.read<ReactionViewModel>();
-            final noteVM = context.read<NoteViewModel>();
             final communityVM = context.read<CommunityViewModel>();
             commentVM.clearComments();
             commentVM.fetchComments(savedNote.id);

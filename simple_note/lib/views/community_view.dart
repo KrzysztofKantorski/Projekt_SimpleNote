@@ -319,7 +319,6 @@ class _CommunityTestViewState extends State<CommunityTestView> {
                       
                       final router = GoRouter.of(context);
                       
-                      final messenger = ScaffoldMessenger.of(context);
                       commentVM.clearComments();
                       commentVM.fetchComments(note.id);
                       

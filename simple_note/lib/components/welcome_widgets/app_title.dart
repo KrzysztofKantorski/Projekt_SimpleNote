@@ -6,7 +6,7 @@ class AppTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      'Notes App',
+      'SimpleNote',
       style: TextStyle(
         fontSize: 26,
         fontWeight: FontWeight.w600,

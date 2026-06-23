@@ -1,24 +1,30 @@
 import 'package:dio/dio.dart';
-import 'dio_client.dart';
+import 'dio_error_helper.dart';
 import '../models/note/note_model.dart';
 import '../models/note/update_note_model.dart';
 
-
 class NoteService {
-  final Dio _dio = DioClient().dio;
+  final Dio _dio;
+
+  const NoteService({required Dio dio}) : _dio = dio;
 
   Future<List<NoteModel>> getNotes() async {
     try {
-      //Get users notes
       final response = await _dio.get('/api/notes');
-      final List<dynamic> rawData = response.data;
-      return rawData.map((json) => NoteModel.fromJson(json)).toList();
-    } 
-    on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e));
+      final List<dynamic> raw = response.data;
+      return raw.map((json) => NoteModel.fromJson(json)).toList();
+    } on DioException catch (e) {
+      throw Exception(extractDioErrorMessage(e));
     }
   }
-
+  Future<NoteModel> getNoteById(int id) async {
+  try {
+    final response = await _dio.get('/api/notes/$id');
+    return NoteModel.fromJson(response.data);
+  } on DioException catch (e) {
+    throw Exception(extractDioErrorMessage(e));
+  }
+}
   Future<NoteModel> addNote({
     required String title,
     required String content,
@@ -27,19 +33,16 @@ class NoteService {
     bool isPublic = true,
   }) async {
     try {
-      final Map<String, dynamic> body = {
-        "title": title,
-        "content": content,
-        "subjectName": subjectName,
-        "tagNames": tagNames ?? [""],
-        "isPublic": isPublic,
-      };
-
-      final response = await _dio.post('/api/notes', data: body);
-      
+      final response = await _dio.post('/api/notes', data: {
+        'title': title,
+        'content': content,
+        'subjectName': subjectName,
+        'tagNames': tagNames ?? [''],
+        'isPublic': isPublic,
+      });
       return NoteModel.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e));
+      throw Exception(extractDioErrorMessage(e));
     }
   }
 
@@ -48,34 +51,18 @@ class NoteService {
     required UpdateNoteRequest request,
   }) async {
     try {
-      final response = await _dio.put(
-        '/api/notes/$id', 
-        data: request.toJson(),
-      );
-      
+      final response =
+          await _dio.put('/api/notes/$id', data: request.toJson());
       return NoteModel.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e));
+      throw Exception(extractDioErrorMessage(e));
     }
   }
-
-  String _extractErrorMessage(DioException e) {
-    final data = e.response?.data;
-    if (data == null) return 'Błąd komunikacji z serwerem (Kod: ${e.response?.statusCode})';
-    if (data is String) return data.trim().isNotEmpty ? data : 'Wystąpił błąd';
-    
-    if (data is List) {
-      if (data.isNotEmpty && data.first is Map && data.first.containsKey('description')) {
-        return data.first['description'].toString();
-      }
-      return 'Błąd serwera (Lista)';
-    }
-
-    if (data is Map) {
-      if (data.containsKey('message') && data['message'] != null) return data['message'].toString();
-      if (data.containsKey('title') && data['title'] != null) return data['title'].toString();
-    }
-
-    return 'Wystąpił błąd serwera (Kod: ${e.response?.statusCode})';
+  Future<void> deleteNote(int id) async {
+  try {
+    await _dio.delete('/api/notes/$id');
+  } on DioException catch (e) {
+    throw Exception(extractDioErrorMessage(e));
   }
+}
 }

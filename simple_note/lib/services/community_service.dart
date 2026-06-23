@@ -1,74 +1,53 @@
 import 'package:dio/dio.dart';
-import 'dio_client.dart';
+import 'dio_error_helper.dart';
 import '../models/community/community_note_model.dart';
 
 class CommunityService {
-  final Dio _dio = DioClient().dio;
+  final Dio _dio;
 
-  //pobieranie listy publicznych notatek
+  const CommunityService({required Dio dio}) : _dio = dio;
+
   Future<List<CommunityNoteModel>> getPublicNotes({
     String? phrase,
     String? subject,
     String? tag,
   }) async {
     try {
-      final Map<String, dynamic> queryParameters = {};
-      
-      if (phrase != null && phrase.trim().isNotEmpty) {
-        queryParameters['phrase'] = phrase.trim();
-      }
-      if (subject != null && subject.trim().isNotEmpty) {
-        queryParameters['subject'] = subject.trim();
-      }
-      if (tag != null && tag.trim().isNotEmpty) {
-        queryParameters['tag'] = tag.trim();
-      }
-
-      final response = await _dio.get(
-        '/api/community/notes', 
-        queryParameters: queryParameters,
-      );
-
-      final List<dynamic> rawData = response.data;
-      return CommunityNoteModel.fromJsonList(rawData);
+      final response = await _dio.get('/api/community/notes',
+          queryParameters: {
+            if (phrase != null && phrase.trim().isNotEmpty) 'phrase': phrase.trim(),
+            if (subject != null && subject.trim().isNotEmpty) 'subject': subject.trim(),
+            if (tag != null && tag.trim().isNotEmpty) 'tag': tag.trim(),
+          });
+      final List<dynamic> raw = response.data;
+      return CommunityNoteModel.fromJsonList(raw);
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e));
+      throw Exception(extractDioErrorMessage(e));
     }
   }
 
-  //pobieranie szczegółów publicznej notatki
   Future<CommunityNoteModel> getPublicNoteById(int noteId) async {
     try {
       final response = await _dio.get('/api/community/notes/$noteId');
-      
       if (response.data == null) {
         throw Exception('Nie znaleziono podanej notatki publicznej.');
       }
-
-      final Map<String, dynamic> rawData = response.data;
-      return CommunityNoteModel.fromJson(rawData);
+      return CommunityNoteModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e));
+      throw Exception(extractDioErrorMessage(e));
     }
   }
-
-  String _extractErrorMessage(DioException e) {
-
-    final data = e.response?.data;
-    if (data == null) return 'Błąd komunikacji z serwerem (Kod: ${e.response?.statusCode})';
-    if (data is String) return data.trim().isNotEmpty ? data : 'Wystąpił błąd';
-    
-    if (data is List) {
-      if (data.isNotEmpty && data.first is Map && data.first.containsKey('description')) {
-        return data.first['description'].toString();
+  Future<List<String>> getSubjects() async {
+    try {
+      final response = await _dio.get('/api/dictionaries/subjects');
+      
+      if (response.data is List) {
+        return List<String>.from(response.data);
       }
-      return 'Błąd serwera (Lista)';
+      return [];
+    } on DioException catch (e) {
+      throw Exception(extractDioErrorMessage(e));
     }
-
-    if (data is Map) {
-      if (data.containsKey('message') && data['message'] != null) return data['message'].toString();
-      if (data.containsKey('title') && data['title'] != null) return data['title'].toString();
-    }
-    return 'Wystąpił błąd serwera (Kod: ${e.response?.statusCode})';
   }
+
 }

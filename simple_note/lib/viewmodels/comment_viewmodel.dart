@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../models/comment/comment_model.dart';
-import '../services/comment_service.dart';
-
+import '../repositories/comment_repository.dart';
 class CommentViewModel extends ChangeNotifier {
-  final CommentService _commentService = CommentService();
+  final CommentRepository _repository;
+
+  CommentViewModel({required CommentRepository repository})
+      : _repository = repository;
 
   List<CommentModel> _comments = [];
   List<CommentModel> get comments => _comments;
@@ -14,71 +16,66 @@ class CommentViewModel extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  final TextEditingController commentController = TextEditingController();
-
-  /// 1. POBIERANIE KOMENTARZY
   Future<void> fetchComments(int noteId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
+    _start();
     try {
-      _comments = await _commentService.getCommentsForNote(noteId);
+      _comments = await _repository.getComments(noteId);
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _errorMessage = _clean(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _stop();
     }
   }
 
-  /// 2. DODAWANIE KOMENTARZA
-  Future<bool> addComment(int noteId) async {
-    final text = commentController.text.trim();
-    if (text.isEmpty) return false;
+  Future<bool> addComment(int noteId, String text) async {
+    if (text.trim().isEmpty) return false;
 
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
+    _start();
     try {
-      await _commentService.addComment(noteId: noteId, content: text);
-      commentController.clear(); 
-      await fetchComments(noteId); // Re-fetch po sukcesie
+      await _repository.addComment(noteId: noteId, content: text.trim());
+      await fetchComments(noteId);
       return true;
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _errorMessage = _clean(e);
       return false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _stop();
     }
   }
 
-  /// 3. USUWANIE KOMENTARZA
   Future<bool> deleteComment(int commentId, int noteId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
+    _start();
     try {
-      await _commentService.deleteComment(commentId, noteId);
-      await fetchComments(noteId); // Re-fetch po sukcesie
+      await _repository.deleteComment(commentId, noteId);
+      await fetchComments(noteId);
       return true;
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _errorMessage = _clean(e);
       return false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _stop();
     }
   }
 
-  /// RESETOWANIE STANU PRZY ZMIANIE EKRANU
   void clearComments() {
     _comments = [];
     _errorMessage = null;
     _isLoading = false;
-    notifyListeners(); 
+    notifyListeners();
   }
+
+  // helpers
+
+  void _start() {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  void _stop() {
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  String _clean(dynamic e) => e.toString().replaceAll('Exception: ', '');
 }

@@ -20,7 +20,6 @@ class TextRecognitionService {
     }
 
     if (status.isPermanentlyDenied) {
-      print("❌ Aparat trwale zablokowany w systemie. Otwieram ustawienia...");
       await openAppSettings(); // Otwiera systemowe ustawienia Twojej aplikacji
       return false;
     }
@@ -39,7 +38,6 @@ class TextRecognitionService {
 
       return recognizedText.text;
     } catch (e) {
-      print("Błąd rozpoznawania tekstu: $e");
       return null;
     }
   }
@@ -49,7 +47,6 @@ class TextRecognitionService {
     final hasPermission = await _requestCameraPermission();
     
     if (!hasPermission) {
-      print("Skanowanie przerwane: brak uprawnień do aparatu.");
       return null; 
     }
 

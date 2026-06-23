@@ -1,7 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:simple_note/viewmodels/app_state_viewmodel.dart';
 import 'models/note/note_model.dart';
-// Importy widoków
 import 'views/onboarding_view.dart';
 import 'views/login_view.dart';
 import 'views/home_view.dart';
@@ -15,66 +14,62 @@ class AppRouter {
     return GoRouter(
       initialLocation: '/login',
       refreshListenable: appStateViewModel,
-      
       routes: [
         GoRoute(
           path: '/onboarding',
           name: 'onboarding',
-          builder: (context, state) => const OnboardingView(),
+          builder: (_, _) => const OnboardingView(),
         ),
         GoRoute(
           path: '/login',
           name: 'login',
-          builder: (context, state) => const LoginView(),
+          builder: (_, _) => const LoginView(),
         ),
         GoRoute(
           path: '/home',
           name: 'home',
-          builder: (context, state) => const HomeView(),
+          builder: (_, _) => const HomeView(),
           routes: [
             GoRoute(
               path: 'add-note',
               name: 'add_note',
-              builder: (context, state) => const AddNoteView(),
+              builder: (_, _) => const AddNoteView(),
             ),
             GoRoute(
-              path: 'edit', 
+              path: 'edit',
               name: 'edit_note',
-              builder: (context, state) => const NoteEditorView(),
+              builder: (_, _) => const NoteEditorView(),
             ),
             GoRoute(
               path: 'details',
               name: 'note_details',
-              builder: (context, state) {
-                final noteData = state.extra as NoteModel;
-                return NoteDetailsTestView(note: noteData);
-              },
+              builder: (_, state) =>
+                  NoteDetailsTestView(note: state.extra as NoteModel),
             ),
             GoRoute(
               path: 'community',
               name: 'community',
-              builder: (context, state) => const CommunityTestView(),)
+              builder: (_, _) => const CommunityTestView(),
+            ),
           ],
         ),
       ],
-
-      // === LOGIKA PRZEKIEROWAŃ ===
       redirect: (context, state) {
-        final AppState status = appStateViewModel.currentState;
-        final String currentLocation = state.uri.toString();
+        final status = appStateViewModel.currentState;
+        final location = state.uri.toString();
 
-        if (status == AppState.loading) {
-          return null; 
-        }
-        if (status == AppState.onboarding && currentLocation != '/onboarding') {
+        if (status == AppState.loading) return null;
+
+        if (status == AppState.onboarding && location != '/onboarding') {
           return '/onboarding';
         }
-
-        if (status == AppState.unauthenticated && currentLocation != '/login' && currentLocation != '/onboarding') {
+        if (status == AppState.unauthenticated &&
+            location != '/login' &&
+            location != '/onboarding') {
           return '/login';
         }
-
-        if (status == AppState.authenticated && (currentLocation == '/login' || currentLocation == '/onboarding')) {
+        if (status == AppState.authenticated &&
+            (location == '/login' || location == '/onboarding')) {
           return '/home';
         }
 

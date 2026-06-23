@@ -1,38 +1,50 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../models/auth/me_model.dart';
-import '../services/user_service.dart';
+import '../repositories/user_repository.dart';
 
 class UserViewModel extends ChangeNotifier {
-  final UserService _userService = UserService();
+  final UserRepository _repository;
+
+  UserViewModel({required UserRepository repository})
+      : _repository = repository;
 
   UserModel? _user;
-  bool _isLoading = false;
-  String? _errorMessage;
-
   UserModel? get user => _user;
+
+  bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  //Get data
   Future<void> fetchCurrentUser() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners(); 
-
+    _start();
     try {
-      _user = await _userService.getMe();
+      _user = await _repository.getCurrentUser();
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _errorMessage = _clean(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _stop();
     }
   }
 
-
-  //Clear state after logout
   void clearUser() {
     _user = null;
     notifyListeners();
   }
+
+  // helpers
+
+  void _start() {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  void _stop() {
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  String _clean(dynamic e) => e.toString().replaceAll('Exception: ', '');
 }

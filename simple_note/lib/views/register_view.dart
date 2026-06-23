@@ -26,14 +26,11 @@ class _RegisterViewState extends State<RegisterView>{
   }
 
 
-  //Form submit - validate data and send to viewmodel
   Future<void> _submit() async {
 
-    //Validation
     if (_formKey.currentState!.validate()) {
       final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
       
-      //Send data to viewmodel
       final success = await authViewModel.register(
         _usernameController.text,
         _passwordController.text,
@@ -51,7 +48,6 @@ class _RegisterViewState extends State<RegisterView>{
 
   @override
   Widget build(BuildContext context) {
-    //Observe changes
     final authViewModel = Provider.of<AuthViewModel>(context);
 
     return Scaffold(
@@ -68,8 +64,7 @@ class _RegisterViewState extends State<RegisterView>{
               const AppTitle(),
               const SizedBox(height: 40),
               const ScreenHeader(
-                title: 'Create an account',
-                subtitle: 'Enter your email to sign up for this app',
+                title: 'Załóż konto',
               ),
               const SizedBox(height: 28),
               CustomFormTextField(
@@ -90,7 +85,6 @@ class _RegisterViewState extends State<RegisterView>{
               ),
               const SizedBox(height: 8),
               
-              // Display error messages from backend
               if (authViewModel.errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
@@ -105,12 +99,11 @@ class _RegisterViewState extends State<RegisterView>{
                 width: double.infinity,
                 height: 50,
 
-                //Loading
                 child: authViewModel.isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : PrimaryButton(
                         onPressed: _submit,
-                        label: 'Continue',
+                        label: 'Załóż',
                       ),
                       
               ),

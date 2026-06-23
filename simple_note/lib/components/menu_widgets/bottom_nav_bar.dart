@@ -65,31 +65,3 @@ class SnBottomNavBar extends StatelessWidget {
     );
   }
 }
-
-class _AvatarIcon extends StatelessWidget {
-  final String? url;
-  final bool isActive;
-
-  const _AvatarIcon({this.url, required this.isActive});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 30,
-      height: 30,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: const Color(0xFFDDDDDD),
-        border: isActive
-            ? Border.all(color: Colors.black, width: 2)
-            : null,
-        image: url != null
-            ? DecorationImage(image: NetworkImage(url!), fit: BoxFit.cover)
-            : null,
-      ),
-      child: url == null
-          ? const Icon(Icons.person, size: 16, color: Color(0xFF888888))
-          : null,
-    );
-  }
-}

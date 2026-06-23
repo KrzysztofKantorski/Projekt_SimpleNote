@@ -72,6 +72,7 @@ class SnNoteListItem extends StatelessWidget {
                 ],
               ),
             ),
+            if (onEditClick != null)
             IconButton(
               onPressed: onEditClick,
               icon: const Icon(

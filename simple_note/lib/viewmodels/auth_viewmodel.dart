@@ -1,87 +1,74 @@
-import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
-import '../models/auth/login_model.dart';
-import '../models/auth/register_model.dart';
+import 'package:flutter/foundation.dart';
+import '../repositories/auth_repository.dart';
 
-class AuthViewModel extends ChangeNotifier{
-  final AuthService _authService = AuthService();
+class AuthViewModel extends ChangeNotifier {
+  final AuthRepository _repository;
+
+  AuthViewModel({required AuthRepository repository})
+      : _repository = repository;
 
   bool _isLoading = false;
-  String? _errorMessage;
-
   bool get isLoading => _isLoading;
+
+  String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-
-  //Login method
-
   Future<bool> login(String username, String password) async {
-    _startLoading();
+    debugPrint("viewmodel");
+    _start();
     try {
-      final request = LoginRequest(
-        username: username, 
-        password: password
-      );
-      await _authService.login(request);
-      _stopLoading();
+      await _repository.login(username, password);
+      _stop();
       return true;
-    } 
-    catch (e) {
-      _handleError(e);
+    } catch (e) {
+      _fail(e);
       return false;
-    } 
+    }
   }
-
-
-  //Register method
 
   Future<bool> register(String username, String password) async {
-    _startLoading();
+    _start();
     try {
-      final request = RegisterRequest(
-        username: username, 
-        password: password
-      );
-      await _authService.register(request);
-      _stopLoading();
-      return true; 
-    } 
-    catch (e) {
-    _handleError(e);
-      return false;
-    } 
-  }
-
-
-  Future<void> logout() async {
-    try {
-      await _authService.logout();
+      await _repository.register(username, password);
+      _stop();
+      return true;
     } catch (e) {
-       _handleError(e);
-    } 
+      _fail(e);
+      return false;
+    }
   }
 
-  //Clear errors from previous actions
-  void _startLoading() {
-    _isLoading = true;
-    _errorMessage = null; 
-    notifyListeners();
+  Future<bool> logout() async {
+    try {
+      await _repository.logout();
+      return true;
+    } catch (e) {
+      _fail(e);
+      return false;
+    }
   }
-
-  void _stopLoading() {
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  void _handleError(dynamic error) {
-    _isLoading = false;
-    _errorMessage = error.toString().replaceAll('Exception: ', '');
-    notifyListeners();
-  }
-
 
   void clearError() {
     _errorMessage = null;
+    notifyListeners();
+  }
+
+  // helpers
+
+  void _start() {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  void _stop() {
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  void _fail(dynamic error) {
+    _isLoading = false;
+    _errorMessage = error.toString().replaceAll('Exception: ', '');
     notifyListeners();
   }
 }

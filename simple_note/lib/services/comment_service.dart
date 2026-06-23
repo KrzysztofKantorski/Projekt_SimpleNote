@@ -1,68 +1,42 @@
 import 'package:dio/dio.dart';
-import 'dio_client.dart';
+import 'dio_error_helper.dart';
 import '../models/comment/comment_model.dart';
 
 class CommentService {
-  final Dio _dio = DioClient().dio;
+  final Dio _dio;
 
-  // pobieranie komentarzy dla notatki
+  const CommentService({required Dio dio}) : _dio = dio;
+
   Future<List<CommentModel>> getCommentsForNote(int noteId) async {
     try {
       final response = await _dio.get('/api/notes/$noteId/comments');
-      
-      final List<dynamic> rawData = response.data;
-      return CommentModel.fromJsonList(rawData);
+      final List<dynamic> raw = response.data;
+      return CommentModel.fromJsonList(raw);
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e));
+      throw Exception(extractDioErrorMessage(e));
     }
   }
 
-  // dodawanie nowego komentarza
   Future<void> addComment({
     required int noteId,
     required String content,
     int? parentCommentId,
   }) async {
     try {
-      final Map<String, dynamic> body = {
+      await _dio.post('/api/notes/$noteId/comments', data: {
         'Content': content,
         if (parentCommentId != null) 'ParentCommentId': parentCommentId,
-      };
-
-      await _dio.post(
-        '/api/notes/$noteId/comments',
-        data: body,
-      );
+      });
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e));
+      throw Exception(extractDioErrorMessage(e));
     }
   }
 
-  // usuwanie komentarza
   Future<void> deleteComment(int commentId, int noteId) async {
     try {
       await _dio.delete('/api/notes/$noteId/comments/$commentId');
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e));
+      throw Exception(extractDioErrorMessage(e));
     }
-  }
-
-  String _extractErrorMessage(DioException e) {
-    final data = e.response?.data;
-    if (data == null) return 'Błąd komunikacji z serwerem (Kod: ${e.response?.statusCode})';
-    if (data is String) return data.trim().isNotEmpty ? data : 'Wystąpił błąd';
-    
-    if (data is List) {
-      if (data.isNotEmpty && data.first is Map && data.first.containsKey('description')) {
-        return data.first['description'].toString();
-      }
-      return 'Błąd serwera (Lista)';
-    }
-
-    if (data is Map) {
-      if (data.containsKey('message') && data['message'] != null) return data['message'].toString();
-      if (data.containsKey('title') && data['title'] != null) return data['title'].toString();
-    }
-    return 'Wystąpił błąd serwera (Kod: ${e.response?.statusCode})';
   }
 }

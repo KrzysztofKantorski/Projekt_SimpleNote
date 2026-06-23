@@ -1,15 +1,19 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../models/community/community_note_model.dart';
-import '../services/community_service.dart';
 import '../models/note/note_model.dart';
+import '../repositories/community_repository.dart';
+
 class CommunityViewModel extends ChangeNotifier {
-  final CommunityService _communityService = CommunityService();
+  final CommunityRepository _repository;
+
+  CommunityViewModel({required CommunityRepository repository})
+      : _repository = repository;
 
   List<CommunityNoteModel> _publicNotes = [];
   List<CommunityNoteModel> get publicNotes => _publicNotes;
 
-  CommunityNoteModel? _selectedNoteDetails;
-  CommunityNoteModel? get selectedNoteDetails => _selectedNoteDetails;
+  List<String> _subjects = [];
+  List<String> get subjects => _subjects;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -17,78 +21,100 @@ class CommunityViewModel extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  final TextEditingController searchController = TextEditingController();
   String? _selectedSubject;
-
   String? get selectedSubject => _selectedSubject;
 
-  // Pobieranie publicznych notatek
-  Future<void> fetchPublicNotes() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+  bool _isSubjectsLoading = false;
+  bool get isSubjectsLoading => _isSubjectsLoading;
 
+  CommunityNoteModel? _currentDetailsNote;
+  CommunityNoteModel? get currentDetailsNote => _currentDetailsNote;
+
+  // Operacje
+
+  Future<void> fetchPublicNotes({String phrase = ''}) async {
+    _start();
     try {
-      _publicNotes = await _communityService.getPublicNotes(
-        phrase: searchController.text.trim(),
+      _publicNotes = await _repository.getPublicNotes(
+        phrase: phrase.trim().isEmpty ? null : phrase.trim(),
         subject: _selectedSubject,
         tag: null,
       );
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _errorMessage = _clean(e);
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _stop();
     }
   }
 
-  // Pobieranie szczegółów wybranej notatki
-  Future<void> fetchPublicNoteDetails(int noteId) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
+  Future<CommunityNoteModel?> fetchPublicNoteById(int noteId) async {
+    _start();
     try {
-      _selectedNoteDetails = await _communityService.getPublicNoteById(noteId);
+      final fullNote = await _repository.getPublicNoteById(noteId);
+      _currentDetailsNote = fullNote;
+      return fullNote;
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _errorMessage = _clean(e);
+      return null;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _stop();
     }
   }
-  NoteModel convertToNoteModel(CommunityNoteModel communityNote) {
-  return NoteModel(
-    id: communityNote.id,
-    title: communityNote.title,
-    content: communityNote.content ?? '',
-    subjectName: communityNote.subjectName,
-    tagNames: communityNote.tagNames,
-    createdAt: communityNote.createdAt,
-    updatedAt: communityNote.updatedAt,
-  );
-}
-  void setSubjectFilter(String? subject) {
+
+  void clearCurrentDetailsNote() {
+    _currentDetailsNote = null;
+    notifyListeners();
+  }
+
+  void setSubjectFilter(String? subject, {String phrase = ''}) {
     _selectedSubject = subject;
-    fetchPublicNotes(); 
+    fetchPublicNotes(phrase: phrase);
   }
 
   void clearAllFilters() {
-    searchController.clear();
     _selectedSubject = null;
     fetchPublicNotes();
   }
 
-  void clearSelectedNote() {
-    _selectedNoteDetails = null;
+  NoteModel convertToNoteModel(CommunityNoteModel communityNote) {
+    return NoteModel(
+      id: communityNote.id,
+      title: communityNote.title,
+      content: communityNote.content ?? '',
+      subjectName: communityNote.subjectName,
+      tagNames: communityNote.tagNames,
+      createdAt: communityNote.createdAt,
+      updatedAt: communityNote.updatedAt,
+    );
+  }
+  // przedmioty
+
+  Future<void> fetchSubjects() async {
+    _isSubjectsLoading = true;
+    notifyListeners();
+
+    try {
+      _subjects = await _repository.getSubjects();
+    } catch (e) {
+      _subjects = [];
+    } finally {
+      _isSubjectsLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // helpers
+
+  void _start() {
+    _isLoading = true;
     _errorMessage = null;
+    notifyListeners();
+  }
+
+  void _stop() {
     _isLoading = false;
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
+  String _clean(dynamic e) => e.toString().replaceAll('Exception: ', '');
 }

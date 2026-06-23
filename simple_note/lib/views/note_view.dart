@@ -4,17 +4,29 @@ import '../models/note/note_model.dart';
 import '../viewmodels/comment_viewmodel.dart';
 import '../viewmodels/reaction_viewmodel.dart';
 
-class NoteDetailsTestView extends StatelessWidget {
+class NoteDetailsTestView extends StatefulWidget {
   final NoteModel note;
 
   const NoteDetailsTestView({super.key, required this.note});
 
   @override
+  State<NoteDetailsTestView> createState() => _NoteDetailsTestViewState();
+}
+
+class _NoteDetailsTestViewState extends State<NoteDetailsTestView> {
+  final TextEditingController _commentController = TextEditingController();
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final commentViewModel = context.watch<CommentViewModel>();
     final reactionViewModel = context.watch<ReactionViewModel>();
-    final int noteId = note.id;
-
+    final int noteId = widget.note.id;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -26,7 +38,7 @@ class NoteDetailsTestView extends StatelessWidget {
         ),
         centerTitle: true,
         title: Text(
-          note.title.isNotEmpty ? note.title : 'Notes Title',
+          widget.note.title.isNotEmpty ? widget.note.title : 'Notes Title',
           style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -46,11 +58,15 @@ class NoteDetailsTestView extends StatelessWidget {
                 children: [
                   const SizedBox(height: 16),
                   Text(
-                    note.content.isNotEmpty ? note.content : 'Notes Sample / first side of notes here',
-                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    widget.note.content.isNotEmpty
+                        ? widget.note.content
+                        : 'Notes Sample / first side of notes here',
+                    style:
+                        const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
                   const SizedBox(height: 40),
-                  const Divider(height: 1, thickness: 1, color: Colors.black12),
+                  const Divider(
+                      height: 1, thickness: 1, color: Colors.black12),
                   const SizedBox(height: 16),
 
                   // Nagłówek komentarzy i reakcje
@@ -58,10 +74,14 @@ class NoteDetailsTestView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Comments',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                        'Komentarze',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
                       ),
-                      _buildReactionsSection(context, reactionViewModel, noteId),
+                      _buildReactionsSection(
+                          context, reactionViewModel, noteId),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -71,12 +91,13 @@ class NoteDetailsTestView extends StatelessWidget {
 
             // Lista komentarzy
             Expanded(
-              child: _buildCommentsList(commentViewModel, noteId),
+              child: _buildCommentsList(context, commentViewModel, noteId),
             ),
 
             // Dodawanie komentarza
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0, vertical: 12.0),
               child: Container(
                 height: 40,
                 decoration: BoxDecoration(
@@ -86,33 +107,52 @@ class NoteDetailsTestView extends StatelessWidget {
                 child: Row(
                   children: [
                     const SizedBox(width: 12),
-                    const Icon(Icons.comment_outlined, size: 16, color: Colors.black54),
+                    const Icon(Icons.comment_outlined,
+                        size: 16, color: Colors.black54),
                     const SizedBox(width: 8),
                     Expanded(
                       child: TextField(
-                        controller: commentViewModel.commentController,
+                        controller: _commentController,
                         style: const TextStyle(fontSize: 13),
                         decoration: const InputDecoration(
-                          hintText: 'Add a comment',
-                          hintStyle: TextStyle(color: Colors.black54, fontSize: 13),
+                          hintText: ' Dodaj komentarz',
+                          hintStyle: TextStyle(
+                              color: Colors.black54, fontSize: 13),
                           border: InputBorder.none,
                           isDense: true,
-                          contentPadding: EdgeInsets.symmetric(vertical: 10),
+                          contentPadding:
+                              EdgeInsets.symmetric(vertical: 10),
                         ),
                       ),
                     ),
                     IconButton(
                       padding: EdgeInsets.zero,
                       icon: commentViewModel.isLoading
-                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.send, size: 16, color: Colors.black54),
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2))
+                          : const Icon(Icons.send,
+                              size: 16, color: Colors.black54),
                       onPressed: commentViewModel.isLoading
                           ? null
                           : () async {
-                              final success = await context.read<CommentViewModel>().addComment(noteId);
-                              if (!success && commentViewModel.errorMessage != null && context.mounted) {
+                              final success = await context
+                                  .read<CommentViewModel>()
+                                  .addComment(
+                                      noteId, _commentController.text);
+                              if (success) {
+                                _commentController.clear();
+                              } else if (commentViewModel.errorMessage !=
+                                      null &&
+                                  context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(backgroundColor: Colors.red, content: Text(commentViewModel.errorMessage!)),
+                                  SnackBar(
+                                    backgroundColor: Colors.red,
+                                    content: Text(
+                                        commentViewModel.errorMessage!),
+                                  ),
                                 );
                               }
                             },
@@ -127,15 +167,21 @@ class NoteDetailsTestView extends StatelessWidget {
     );
   }
 
-  Widget _buildReactionsSection(BuildContext context, ReactionViewModel viewModel, int noteId) {
+  Widget _buildReactionsSection(
+      BuildContext context, ReactionViewModel viewModel, int noteId) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         ...viewModel.noteReactions.map((reaction) {
           return InkWell(
             onTap: () async {
-              final success = await viewModel.toggleReaction(noteId, reaction.reactionTypeId, reaction.reactedByCurrentUser);
-              if (!success && viewModel.errorMessage != null && context.mounted) {
+              final success = await viewModel.toggleReaction(
+                  noteId,
+                  reaction.reactionTypeId,
+                  reaction.reactedByCurrentUser);
+              if (!success &&
+                  viewModel.errorMessage != null &&
+                  context.mounted) {
                 _showErrorSnackBar(context, viewModel.errorMessage!);
               }
             },
@@ -144,16 +190,19 @@ class NoteDetailsTestView extends StatelessWidget {
               child: Row(
                 children: [
                   Text(
-                    reaction.iconUrl.isNotEmpty ? reaction.iconUrl : "♡",
+                    reaction.iconUrl.isNotEmpty ? reaction.iconUrl : '♡',
                     style: TextStyle(
                       fontSize: 16,
-                      color: reaction.reactedByCurrentUser ? Colors.red : Colors.black54,
+                      color: reaction.reactedByCurrentUser
+                          ? Colors.red
+                          : Colors.black54,
                     ),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '${reaction.count}',
-                    style: const TextStyle(color: Colors.black54, fontSize: 13),
+                    style: const TextStyle(
+                        color: Colors.black54, fontSize: 13),
                   ),
                 ],
               ),
@@ -167,15 +216,16 @@ class NoteDetailsTestView extends StatelessWidget {
           },
           child: const Padding(
             padding: EdgeInsets.only(left: 4.0),
-            child: Icon(Icons.add_reaction_outlined, size: 18, color: Colors.black54),
+            child: Icon(Icons.add_reaction_outlined,
+                size: 18, color: Colors.black54),
           ),
         ),
       ],
     );
   }
 
-  // wybór reakcji
-  void _showReactionPicker(BuildContext context, ReactionViewModel viewModel, int noteId) {
+  void _showReactionPicker(
+      BuildContext context, ReactionViewModel viewModel, int noteId) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -185,8 +235,25 @@ class NoteDetailsTestView extends StatelessWidget {
       builder: (context) {
         return Consumer<ReactionViewModel>(
           builder: (context, rVM, child) {
+            if (rVM.isLoading) {
+              return const SizedBox(
+                height: 100,
+                child: Center(
+                  child: CircularProgressIndicator(color: Colors.black),
+                ),
+              );
+            }
+
             if (rVM.availableReactions.isEmpty) {
-              return const SizedBox(height: 100, child: Center(child: CircularProgressIndicator(color: Colors.black)));
+              return const SizedBox(
+                height: 100,
+                child: Center(
+                  child: Text(
+                    'Brak dostępnych reakcji',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                ),
+              );
             }
 
             return Container(
@@ -195,7 +262,10 @@ class NoteDetailsTestView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Dodaj reakcję:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+                  const Text('Dodaj reakcję:',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black)),
                   const SizedBox(height: 10),
                   Expanded(
                     child: ListView.builder(
@@ -203,21 +273,32 @@ class NoteDetailsTestView extends StatelessWidget {
                       itemCount: rVM.availableReactions.length,
                       itemBuilder: (context, index) {
                         final type = rVM.availableReactions[index];
-                        final bool alreadySelected = rVM.noteReactions.any((nr) => nr.reactionTypeId == type.id && nr.reactedByCurrentUser);
+                        final bool alreadySelected = rVM.noteReactions
+                            .any((nr) =>
+                                nr.reactionTypeId == type.id &&
+                                nr.reactedByCurrentUser);
 
                         return InkWell(
                           onTap: () async {
                             Navigator.pop(context);
-                            final success = await rVM.toggleReaction(noteId, type.id, alreadySelected);
-                            if (!success && rVM.errorMessage != null && context.mounted) {
-                              _showErrorSnackBar(context, rVM.errorMessage!);
+                            final success = await rVM.toggleReaction(
+                                noteId, type.id, alreadySelected);
+                            if (!success &&
+                                rVM.errorMessage != null &&
+                                context.mounted) {
+                              _showErrorSnackBar(
+                                  context, rVM.errorMessage!);
                             }
                           },
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0),
                             child: CircleAvatar(
                               backgroundColor: Colors.grey.shade100,
-                              child: Text(type.imageUrl.isNotEmpty ? type.imageUrl : "😀"),
+                              child: Text(
+                                  type.imageUrl.isNotEmpty
+                                      ? type.imageUrl
+                                      : '😀'),
                             ),
                           ),
                         );
@@ -235,15 +316,28 @@ class NoteDetailsTestView extends StatelessWidget {
 
   void _showErrorSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(backgroundColor: Colors.red, content: Text('Akcja niedozwolona: $message')),
+      SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Akcja niedozwolona: $message')),
     );
   }
 
-  // lista komentarzy
-  Widget _buildCommentsList(CommentViewModel viewModel, int noteId) {
-    if (viewModel.isLoading && viewModel.comments.isEmpty) return const Center(child: CircularProgressIndicator(color: Colors.black));
-    if (viewModel.errorMessage != null && viewModel.comments.isEmpty) return Center(child: Text('❌ Błąd: ${viewModel.errorMessage}', style: const TextStyle(color: Colors.red)));
-    if (viewModel.comments.isEmpty) return const Center(child: Text('Brak komentarzy dla tej notatki.', style: TextStyle(color: Colors.black54)));
+  Widget _buildCommentsList(
+      BuildContext context, CommentViewModel viewModel, int noteId) {
+    if (viewModel.isLoading && viewModel.comments.isEmpty) {
+      return const Center(
+          child: CircularProgressIndicator(color: Colors.black));
+    }
+    if (viewModel.errorMessage != null && viewModel.comments.isEmpty) {
+      return Center(
+          child: Text('Błąd: ${viewModel.errorMessage}',
+              style: const TextStyle(color: Colors.red)));
+    }
+    if (viewModel.comments.isEmpty) {
+      return const Center(
+          child: Text('Brak komentarzy dla tej notatki.',
+              style: TextStyle(color: Colors.black54)));
+    }
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -260,13 +354,19 @@ class NoteDetailsTestView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      comment.authorName.isNotEmpty ? comment.authorName : 'User name',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black),
+                      comment.authorName.isNotEmpty
+                          ? comment.authorName
+                          : 'User name',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.black),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       comment.content,
-                      style: const TextStyle(color: Colors.black54, fontSize: 13),
+                      style: const TextStyle(
+                          color: Colors.black54, fontSize: 13),
                     ),
                   ],
                 ),
@@ -274,10 +374,14 @@ class NoteDetailsTestView extends StatelessWidget {
               IconButton(
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
-                icon: const Icon(Icons.delete_outline, size: 16, color: Colors.black26),
+                icon: const Icon(Icons.delete_outline,
+                    size: 16, color: Colors.black26),
                 onPressed: () async {
-                  final success = await viewModel.deleteComment(comment.id, noteId);
-                  if (!success && viewModel.errorMessage != null && context.mounted) {
+                  final success =
+                      await viewModel.deleteComment(comment.id, noteId);
+                  if (!success &&
+                      viewModel.errorMessage != null &&
+                      context.mounted) {
                     _showErrorSnackBar(context, viewModel.errorMessage!);
                   }
                 },

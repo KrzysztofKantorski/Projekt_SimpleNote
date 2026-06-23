@@ -9,6 +9,7 @@ import '../viewmodels/app_state_viewmodel.dart';
 import '../components/menu_widgets/menu_widgets.dart';
 import '../viewmodels/reaction_viewmodel.dart';
 import '../viewmodels/saved_note_viewmodel.dart';
+import '../viewmodels/community_viewmodel.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -56,13 +57,13 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // — AppBar —
+            // AppBar
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 16, 16, 0),
               child: Row(
                 children: [
                   const Text(
-                    'Notes',
+                    'Notatki',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w700,
@@ -83,7 +84,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
               ),
             ),
             
-            // — Przełącznik sekcji (Moje lub Zapisane) —
+            // Przełącznik sekcji (Moje lub Zapisane)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: TabBar(
@@ -120,7 +121,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
     );
   }
 
-  //Moje notatki===
+  //Moje notatki
   Widget _buildBodyContent(NoteViewModel viewModel) {
     if (viewModel.isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -149,8 +150,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
       );
     }
 
-    if (viewModel.notes != null) {
-      if (viewModel.notes!.isEmpty) {
+      if (viewModel.notes.isEmpty) {
         return const Center(
           child: Text(
             'Nie masz jeszcze żadnych notatek.\nStwórz swoją pierwszą notatkę!',
@@ -189,9 +189,8 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
           );
         },
       );
-    }
-    return const SizedBox.shrink();
-  }
+    }  
+    
 
   // Zapisane Notatki
   Widget _buildSavedNotesContent(SavedNoteViewModel viewModel) {
@@ -242,23 +241,28 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
           title: savedNote.title,
           content: 'Autor: ${savedNote.authorName} • ${savedNote.subjectName}',
           timeAgo: '',
-          onTap: () {
-            context.read<CommentViewModel>().clearComments();
-            context.read<CommentViewModel>().fetchComments(savedNote.id);
+          onTap: () async {
+            final router = GoRouter.of(context);
+            final commentVM = context.read<CommentViewModel>();
+            final reactionVM = context.read<ReactionViewModel>();
+            final noteVM = context.read<NoteViewModel>();
+            final communityVM = context.read<CommunityViewModel>();
+            commentVM.clearComments();
+            commentVM.fetchComments(savedNote.id);
 
-            context.read<ReactionViewModel>().clearReactions();
-            context.read<ReactionViewModel>().fetchNoteReactions(savedNote.id);
+            reactionVM.clearReactions();
+            reactionVM.fetchNoteReactions(savedNote.id);
+            final communityNote = await communityVM.fetchPublicNoteById(savedNote.id);
 
-            context.pushNamed(
-              'note_details',
-              extra: savedNote, 
-            );
+            if (communityNote != null && context.mounted) {
+              final noteForDetails = communityVM.convertToNoteModel(communityNote);
+              router.pushNamed(
+                'note_details',
+                extra: noteForDetails, 
+             );
+            }
           },
-          onEditClick: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Nie możesz edytować zapisanych notatek innych użytkowników.')),
-            );
-          },
+          onEditClick: null,
         );
       },
     );

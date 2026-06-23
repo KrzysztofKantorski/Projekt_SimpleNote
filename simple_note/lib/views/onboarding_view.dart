@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/app_state_viewmodel.dart';
 
@@ -36,9 +37,8 @@ class OnboardingView extends StatelessWidget {
                 height: 55,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Wywołujemy funkcję z ViewModelu głównego, która zapisuje flagę w urządzeniu
-                    // i przełącza widok na ekran logowania.
                     Provider.of<AppStateViewModel>(context, listen: false).completeOnboarding();
+                    context.goNamed('login');
                   },
                   child: const Text('Zaczynamy', style: TextStyle(fontSize: 18)),
                 ),

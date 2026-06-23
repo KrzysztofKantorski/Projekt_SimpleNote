@@ -21,8 +21,7 @@ class _LoginViewState extends State<LoginView>{
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
-      
-      //Send data to viewmodel
+      debugPrint("submit");
       final success = await authViewModel.login(
         _usernameController.text,
         _passwordController.text,
@@ -30,7 +29,6 @@ class _LoginViewState extends State<LoginView>{
 
       if (success && mounted) {
 
-        //Navigate to notes view
         Provider.of<AppStateViewModel>(context, listen: false).loginSuccess();
       }
     }
@@ -54,8 +52,8 @@ class _LoginViewState extends State<LoginView>{
               const AppTitle(),
               const SizedBox(height: 40),
               const ScreenHeader(
-                title: 'Welcome back!',
-                subtitle: 'Enter your username to log in to this app',
+                title: 'Witaj z powrotem!',
+                subtitle: 'Wprowadź nazwę użytkownika i hasło, aby się zalogować',
               ),
               const SizedBox(height: 28),
               CustomFormTextField(
@@ -71,9 +69,7 @@ class _LoginViewState extends State<LoginView>{
                 validator: (val) => val == null || val.isEmpty ? 'Podaj hasło' : null,
               ),
               const SizedBox(height: 12),
-              
-
-              //Display error message
+            
               if (authViewModel.errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
@@ -84,16 +80,14 @@ class _LoginViewState extends State<LoginView>{
                 width: double.infinity,
                 height: 50,
 
-                //Loading
                 child: authViewModel.isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : PrimaryButton(
                         onPressed: _submit,
-                        label: 'Continue',
+                        label: 'Zaloguj się',
                       ),
               ),
 
-              //Navigate to register view
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () {

@@ -1,65 +1,48 @@
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'secure_storage_service.dart';
 
 class DioClient {
   static final DioClient _instance = DioClient._internal();
+  factory DioClient() => _instance;
 
   late final Dio dio;
-
   bool _isRefreshing = false;
-
-  factory DioClient() => _instance;
 
   DioClient._internal() {
     dio = Dio(BaseOptions(
-      // Change to port from backend
-      baseUrl: 'http://10.0.2.2:5168', 
+      baseUrl: 'http://10.0.2.2:5168',
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
     ));
   }
 
-  // Init method
   Future<void> init() async {
-    // Cookies storage location
     final appDocDir = await getApplicationDocumentsDirectory();
-
     final cookieJar = PersistCookieJar(
       ignoreExpires: true,
       storage: FileStorage('${appDocDir.path}/.cookies/'),
     );
 
-    // Add interceptor
     dio.interceptors.add(CookieManager(cookieJar));
-
-    // Add main interceptor
     dio.interceptors.add(
       QueuedInterceptorsWrapper(
         onRequest: (options, handler) async {
-          // Get access token
           final accessToken = await SecureStorageService.getAccessToken();
-
-          // Access token is valid
           if (accessToken != null && accessToken.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $accessToken';
           }
-
           return handler.next(options);
         },
         onError: (DioException e, handler) async {
-          // Server returned 401 - token expired
           if (e.response?.statusCode == 401) {
-            // send request for token refresh
             final refreshed = await _refreshToken();
-            
             if (refreshed) {
-              // Update access token, retry request
-              final newAccessToken = await SecureStorageService.getAccessToken();
-              e.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-              
+              final newToken = await SecureStorageService.getAccessToken();
+              e.requestOptions.headers['Authorization'] = 'Bearer $newToken';
               try {
                 final retryResponse = await dio.fetch(e.requestOptions);
                 return handler.resolve(retryResponse);
@@ -67,9 +50,7 @@ class DioClient {
                 return handler.next(retryError as DioException);
               }
             } else {
-              // Token refresh was not successfull
               await SecureStorageService.deleteAccessToken();
-              // Logika wylogowania...
             }
           }
           return handler.next(e);
@@ -81,33 +62,25 @@ class DioClient {
   Future<bool> _refreshToken() async {
     if (_isRefreshing) return false;
     _isRefreshing = true;
-    
+
     try {
-      // Create separate dio instance
       final refreshDio = Dio(dio.options);
+      refreshDio.interceptors
+          .addAll(dio.interceptors.whereType<CookieManager>());
 
-      // Add cookie manager 
-      refreshDio.interceptors.addAll(dio.interceptors.whereType<CookieManager>());
-
-      // Send request for token refresh
       final response = await refreshDio.post('/api/auth/refresh');
-      
-      // Get access token from api response (POPRAWIONE PARSOWANIE JSON)
-      final responseData = response.data;
-      final newAccessToken = responseData['tokens']?['accessToken'];
-      
-      if (newAccessToken != null && newAccessToken.toString().isNotEmpty) {
-        // Save access token to cookie manager
-        await SecureStorageService.saveAccessToken(newAccessToken.toString());
-        _isRefreshing = false;
+      final newToken = response.data?['tokens']?['accessToken'];
+
+      if (newToken != null && newToken.toString().isNotEmpty) {
+        await SecureStorageService.saveAccessToken(newToken.toString());
         return true;
       }
-      
-      _isRefreshing = false;
       return false;
     } catch (e) {
-      _isRefreshing = false;
+      debugPrint('Token refresh failed: $e');
       return false;
+    } finally {
+      _isRefreshing = false;
     }
   }
 }

@@ -1,4 +1,4 @@
-//Respomse
+//Response
 class LogoutResponse {
   final String message;
 

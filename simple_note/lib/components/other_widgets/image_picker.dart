@@ -39,7 +39,7 @@ class SnOcrBottomSheet extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context); // Zamykamy BottomSheet
-              noteViewModel.scanTextAndAppend(ImageSource.camera);
+              noteViewModel.scanTextFromImage(ImageSource.camera);
             },
           ),
           ListTile(
@@ -50,7 +50,7 @@ class SnOcrBottomSheet extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context); // Zamykamy BottomSheet
-              noteViewModel.scanTextAndAppend(ImageSource.gallery);
+              noteViewModel.scanTextFromImage(ImageSource.gallery);
             },
           ),
           const SizedBox(height: 12),

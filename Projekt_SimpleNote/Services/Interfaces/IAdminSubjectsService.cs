@@ -1,11 +1,12 @@
 ﻿using Projekt_SimpleNote.Dto.Admin;
+using Projekt_SimpleNote.Dto.Pagination;
 
 namespace Projekt_SimpleNote.Services.Interfaces
 {
     public interface IAdminSubjectsService
     {
         //Get all subjects
-        Task<IEnumerable<SubjectDto>> GetAllSubjectsAsync();
+        Task<PagedResult<SubjectDto>> GetAllSubjectsAsync(PaginationParamsDto paginationParams);
 
         //Create new subject
         Task<(bool Success, string Message, SubjectDto? Data)> AddSubjectAsync(SubjectRequestDto dto);

@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Projekt_SimpleNote.Dto.Pagination;
 using Projekt_SimpleNote.Services.Interfaces;
 
 namespace Projekt_SimpleNote.Controllers
@@ -10,16 +12,25 @@ namespace Projekt_SimpleNote.Controllers
     public class AdminUsersController : ControllerBase
     {
         private readonly IAdminUsersService _adminUsersService;
+        private readonly IValidator<PaginationParamsDto> _paginationValidator;
 
-        public AdminUsersController(IAdminUsersService adminUsersService)
+        public AdminUsersController(IAdminUsersService adminUsersService, IValidator<PaginationParamsDto> paginationValidator)
         {
             _adminUsersService = adminUsersService;
+            _paginationValidator = paginationValidator;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers(
+            [FromQuery] PaginationParamsDto paginationParams
+            )
         {
-            var result = await _adminUsersService.GetAllUsersAsync();
+            var validationResult = await _paginationValidator.ValidateAsync(paginationParams);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+            }
+            var result = await _adminUsersService.GetAllUsersAsync(paginationParams);
             return Ok(result);
         }
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Projekt_SimpleNote.Dto.Admin;
+using Projekt_SimpleNote.Dto.Pagination;
 using Projekt_SimpleNote.Services.Interfaces;
 
 namespace Projekt_SimpleNote.Controllers
@@ -13,16 +14,25 @@ namespace Projekt_SimpleNote.Controllers
     {
         private readonly IAdminReactionsService _adminReactionsService;
         private readonly IValidator<CreateReactionTypeDto> _validator;
+        private readonly IValidator<PaginationParamsDto> _paginationValidator;
 
-        public AdminReactionsController(IAdminReactionsService adminReactionsService, IValidator<CreateReactionTypeDto> validator)
+        public AdminReactionsController(IAdminReactionsService adminReactionsService, IValidator<CreateReactionTypeDto> validator, IValidator<PaginationParamsDto> paginationValidator)
         {
             _adminReactionsService = adminReactionsService;
             _validator = validator;
+            _paginationValidator = paginationValidator;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllReactionTypes()
+        public async Task<IActionResult> GetAllReactionTypes(
+            [FromQuery] PaginationParamsDto paginationParams
+            )
         {
-            var result = await _adminReactionsService.GetAllReactionTypesAsync();
+            var validationResult = await _paginationValidator.ValidateAsync(paginationParams);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+            }
+            var result = await _adminReactionsService.GetAllReactionTypesAsync(paginationParams);
             return Ok(result);
 
         }

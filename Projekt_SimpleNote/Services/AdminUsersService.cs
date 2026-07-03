@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Projekt_SimpleNote.Data;
 using Projekt_SimpleNote.Dto.Admin;
+using Projekt_SimpleNote.Dto.Pagination;
+using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Services.Interfaces;
 
 namespace Projekt_SimpleNote.Services
@@ -15,7 +17,7 @@ namespace Projekt_SimpleNote.Services
         }
 
         //Get all users
-        public async Task<IEnumerable<UserSummaryDto>> GetAllUsersAsync()
+        public async Task<PagedResult<UserSummaryDto>> GetAllUsersAsync(PaginationParamsDto paginationParams)
         {
             //return users
             return await _context.Users
@@ -27,7 +29,7 @@ namespace Projekt_SimpleNote.Services
                     u.IsActive,
                     u.CreatedAt
                 ))
-                .ToListAsync();
+                .ToPagedResultAsync(paginationParams.PageNumber, paginationParams.PageSize);
         }
 
 

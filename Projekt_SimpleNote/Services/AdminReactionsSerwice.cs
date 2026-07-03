@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Projekt_SimpleNote.Data;
 using Projekt_SimpleNote.Dto.Admin;
+using Projekt_SimpleNote.Dto.Pagination;
 using Projekt_SimpleNote.Entities;
+using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Services.Interfaces;
 
 namespace Projekt_SimpleNote.Services
@@ -17,7 +19,7 @@ namespace Projekt_SimpleNote.Services
 
 
         //Get all reaction types
-        public async Task<IEnumerable<ReactionTypeDto>> GetAllReactionTypesAsync()
+        public async Task<PagedResult<ReactionTypeDto>> GetAllReactionTypesAsync(PaginationParamsDto paginationParams)
         {
 
             var reactionTypes = await _context.ReactionTypes
@@ -27,7 +29,7 @@ namespace Projekt_SimpleNote.Services
                     rt.Name, 
                     rt.IconUrl
                 ))
-                .ToListAsync();
+                .ToPagedResultAsync(paginationParams.PageNumber, paginationParams.PageSize);
 
             return (reactionTypes);
         }

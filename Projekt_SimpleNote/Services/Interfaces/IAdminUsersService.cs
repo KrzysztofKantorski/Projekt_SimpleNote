@@ -1,11 +1,12 @@
 ﻿using Projekt_SimpleNote.Dto.Admin;
+using Projekt_SimpleNote.Dto.Pagination;
 
 namespace Projekt_SimpleNote.Services.Interfaces
 {
     public interface IAdminUsersService
     {
         //Get all users 
-        Task<IEnumerable<UserSummaryDto>> GetAllUsersAsync();
+        Task<PagedResult<UserSummaryDto>> GetAllUsersAsync(PaginationParamsDto paginationParams);
 
 
         //Get user details

@@ -4,6 +4,7 @@ using Projekt_SimpleNote.Dto.Admin;
 using Projekt_SimpleNote.Dto.Auth;
 using Projekt_SimpleNote.Dto.Comments;
 using Projekt_SimpleNote.Dto.Notes;
+using Projekt_SimpleNote.Dto.Pagination;
 using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Middleware;
 using Projekt_SimpleNote.Services;
@@ -13,7 +14,6 @@ using Scalar.AspNetCore;
 Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("http://0.0.0.0:5168");
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
 
 
@@ -28,13 +28,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 //Validators
 builder.Services.AddScoped<IValidator<RegisterDto>, RegisterDtoValidator>();
-builder.Services.AddScoped<IValidator<RegisterDto>, RegisterDtoValidator>();
 builder.Services.AddScoped<IValidator<LoginDto>, LoginDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateNoteDto>, CreateNoteDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateNoteDto>, UpdateNoteDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateCommentDto>, CreateCommentDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateReactionTypeDto>, CreateReactionTypeDtoValidator>();
 builder.Services.AddScoped<IValidator<SubjectRequestDto>, SubjectRequestDtoValidator>();
+builder.Services.AddScoped<IValidator<PaginationParamsDto>, PaginationParamsValidator>();
 
 
 //Services

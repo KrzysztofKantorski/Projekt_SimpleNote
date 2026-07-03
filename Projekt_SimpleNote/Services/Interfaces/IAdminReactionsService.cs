@@ -1,11 +1,12 @@
 ﻿using Projekt_SimpleNote.Dto.Admin;
+using Projekt_SimpleNote.Dto.Pagination;
 
 namespace Projekt_SimpleNote.Services.Interfaces
 {
     public interface IAdminReactionsService
     {
         //Get all reaction types
-        Task<IEnumerable<ReactionTypeDto>> GetAllReactionTypesAsync();
+        Task<PagedResult<ReactionTypeDto>> GetAllReactionTypesAsync(PaginationParamsDto paginationParams);
 
         //Create new reaction type
         Task<(bool Success, string Message, ReactionTypeDto? Data)> AddReactionTypeAsync(CreateReactionTypeDto dto);

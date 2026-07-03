@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Projekt_SimpleNote.Data;
 using Projekt_SimpleNote.Dto.Admin;
+using Projekt_SimpleNote.Dto.Pagination;
 using Projekt_SimpleNote.Entities;
+using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Services.Interfaces;
 
 namespace Projekt_SimpleNote.Services
@@ -17,7 +19,7 @@ namespace Projekt_SimpleNote.Services
 
 
        //Get all subjects
-       public async Task<IEnumerable<SubjectDto>> GetAllSubjectsAsync()
+       public async Task<PagedResult<SubjectDto>> GetAllSubjectsAsync(PaginationParamsDto paginationParams)
         {
             //Get all subjects
             var subjects = await _context.Subjects
@@ -26,7 +28,7 @@ namespace Projekt_SimpleNote.Services
                     s.Id,
                     s.Name
                 ))
-                .ToListAsync();
+                .ToPagedResultAsync(paginationParams.PageNumber, paginationParams.PageSize);
 
             return subjects;
         }

@@ -45,7 +45,7 @@ namespace Projekt_SimpleNote.Middleware
                         context.Response.StatusCode = StatusCodes.Status403Forbidden;
                         context.Response.ContentType = "application/json";
                         await context.Response.WriteAsJsonAsync(new { message = "Your account is not active." });
-                        return; // Blokada - short-circuit
+                        return; 
                     }
 
                     // Save user Id

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Projekt_SimpleNote.Dto.Admin;
+using Projekt_SimpleNote.Dto.Pagination;
 using Projekt_SimpleNote.Services.Interfaces;
 
 namespace Projekt_SimpleNote.Controllers
@@ -14,16 +15,25 @@ namespace Projekt_SimpleNote.Controllers
     {
         private readonly IAdminSubjectsService _adminSubjectsService;
         private readonly IValidator<SubjectRequestDto> _validator;
-
-        public AdminSubjectsController(IAdminSubjectsService adminSubjectsService, IValidator<SubjectRequestDto> validator)
+        private readonly IValidator<PaginationParamsDto> _paginationValidator;
+        public AdminSubjectsController(IAdminSubjectsService adminSubjectsService, IValidator<SubjectRequestDto> validator, IValidator<PaginationParamsDto> paginationValidator)
         {
             _adminSubjectsService = adminSubjectsService;
             _validator = validator;
+            _paginationValidator = paginationValidator;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllSubjects()
+        public async Task<IActionResult> GetAllSubjects(
+            [FromQuery] PaginationParamsDto paginationParams
+            )
         {
-            var result = await _adminSubjectsService.GetAllSubjectsAsync();
+            var validationResult = await _paginationValidator.ValidateAsync(paginationParams);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+            }
+
+            var result = await _adminSubjectsService.GetAllSubjectsAsync(paginationParams);
             return Ok(result);
         }
 

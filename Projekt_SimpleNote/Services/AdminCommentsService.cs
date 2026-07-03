@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Projekt_SimpleNote.Data;
 using Projekt_SimpleNote.Dto.Comments;
+using Projekt_SimpleNote.Dto.Pagination;
+using Projekt_SimpleNote.Extensions;
 using Projekt_SimpleNote.Services.Interfaces;
 
 namespace Projekt_SimpleNote.Services
@@ -16,31 +18,31 @@ namespace Projekt_SimpleNote.Services
         
 
         //Get all comments
-        public async Task<IEnumerable<CommentDto>> GetAllCommentsAsync()
+        public async Task<PagedResult<CommentDto>> GetAllCommentsAsync(PaginationParamsDto paginationParams)
         {
 
-             var commentsDto = await _context.Comments
-                .AsNoTracking()
-                .Where(c => c.ParentCommentId == null && !c.IsHiddenByAdmin)
-                .OrderByDescending(c => c.CreatedAt)
-                .Select(c => new CommentDto(
-                     c.Id,
-                     c.Content,
-                     c.User.Username,
-                     c.CreatedAt,
-                     c.Replies
-                         .Where(r => !r.IsHiddenByAdmin)
-                         .OrderBy(r => r.CreatedAt)
-                         .Select(r => new CommentDto(
-                             r.Id,
-                             r.Content,
-                             r.User.Username,
-                             r.CreatedAt,
-                             new List<CommentDto>()
-                         ))
-                         .ToList()
-                 ))
-                 .ToListAsync();
+            var commentsDto = await _context.Comments
+               .AsNoTracking()
+               .Where(c => c.ParentCommentId == null && !c.IsHiddenByAdmin)
+               .OrderByDescending(c => c.CreatedAt)
+               .Select(c => new CommentDto(
+                    c.Id,
+                    c.Content,
+                    c.User.Username,
+                    c.CreatedAt,
+                    c.Replies
+                        .Where(r => !r.IsHiddenByAdmin)
+                        .OrderBy(r => r.CreatedAt)
+                        .Select(r => new CommentDto(
+                            r.Id,
+                            r.Content,
+                            r.User.Username,
+                            r.CreatedAt,
+                            new List<CommentDto>()
+                        ))
+                        .ToList()
+                ))
+                .ToPagedResultAsync(paginationParams.PageNumber, paginationParams.PageSize);
 
              return commentsDto;
         }

@@ -1,8 +1,14 @@
 import { api } from './axiosConfig';
 import type { SubjectDto, SubjectRequestDto } from '../types/subjectTypes';
+import type { PagedResult } from '../types/paginationTypes';
 
-export const getSubjects = async (): Promise<SubjectDto[]> => {
-  const response = await api.get<SubjectDto[]>('/admin/subjects');
+export const getSubjects = async (pageNumber: number, pageSize: number): Promise<PagedResult<SubjectDto>> => {
+  const response = await api.get<PagedResult<SubjectDto>>('/admin/subjects', {
+    params: { 
+      pageNumber, 
+      pageSize 
+    }
+  });
   return response.data;
 };
 

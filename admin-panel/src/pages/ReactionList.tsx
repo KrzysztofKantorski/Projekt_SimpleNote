@@ -1,4 +1,4 @@
-// src/pages/ReactionList.tsx
+
 import { useState } from 'react';
 import { 
   Box, TableCell, TableRow, CircularProgress, Alert, Dialog, 
@@ -12,17 +12,18 @@ import {
   useCreateReaction, 
   useUpdateReaction 
 } from '../hooks/useReactions';
-import type { ReactionTypeDto } from '../types/reactionTypes';
 
-// Gotowe komponenty UI
+import type { ReactionTypeDto } from '../types/reactionTypes';
 import { AdminPageHeader } from '../components/AdminPageHeader';
 import { AdminActionButtons } from '../components/AdminActionButtons';
 import { AdminTable } from '../components/AdminTable';
 import { AdminInput } from '../components/AdminInput';
 import { AdminButton } from '../components/AdminButton';
+import { CustomPagination } from '../components/Pagination';
 
 export const ReactionList = () => {
-
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 5;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingReaction, setEditingReaction] = useState<ReactionTypeDto | null>(null);
   
@@ -31,6 +32,11 @@ export const ReactionList = () => {
   const [reactionIconUrl, setReactionIconUrl] = useState('');
   const [validationError, setValidationError] = useState('');
 
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, newPage: number) => {
+    setPage(newPage);
+  };
+
+  
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingReaction(null);
@@ -39,7 +45,7 @@ export const ReactionList = () => {
     setValidationError('');
   };
 
-  const { data: reactions, isLoading, isError, error } = useReactionsQuery();
+  const { data: reactions, isLoading, isError, error } = useReactionsQuery(page, pageSize);
   const deleteMutation = useDeleteReaction();
   const createMutation = useCreateReaction(handleCloseModal);
   const updateMutation = useUpdateReaction(handleCloseModal);
@@ -100,31 +106,40 @@ export const ReactionList = () => {
 
 
       {!isLoading && !isError && reactions && (
-        <AdminTable headers={['ID', 'Ikona', 'Nazwa', 'Akcje']}>
-          {reactions.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
-                Brak reakcji w bazie. Kliknij "Dodaj reakcję".
-              </TableCell>
-            </TableRow>
-          ) : (
-            reactions.map((reaction) => (
-              <TableRow key={reaction.id}>
-                <TableCell width="10%">{reaction.id}</TableCell>
-                <TableCell width="15%">
-                 <Typography>{reaction.iconUrl}</Typography>
-                </TableCell>
-                <TableCell>{reaction.name}</TableCell>
-                <TableCell align="right" width="35%">
-                  <AdminActionButtons 
-                    onEdit={() => handleOpenModal(reaction)} 
-                    onDelete={() => handleDelete(reaction.id, reaction.name)} 
-                  />
+        <>
+        
+          <AdminTable headers={['ID', 'Ikona', 'Nazwa', 'Akcje']}>
+            {reactions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                  Brak reakcji w bazie. Kliknij "Dodaj reakcję".
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </AdminTable>
+            ) : (
+              reactions.items.map((reaction) => (
+                <TableRow key={reaction.id}>
+                  <TableCell width="10%">{reaction.id}</TableCell>
+                  <TableCell width="15%">
+                  <Typography>{reaction.iconUrl}</Typography>
+                  </TableCell>
+                  <TableCell>{reaction.name}</TableCell>
+                  <TableCell align="right" width="35%">
+                    <AdminActionButtons 
+                      onEdit={() => handleOpenModal(reaction)} 
+                      onDelete={() => handleDelete(reaction.id, reaction.name)} 
+                    />
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </AdminTable>
+
+          <CustomPagination 
+            totalPages={reactions.totalPages}
+            currentPage={reactions.currentPage}
+            onPageChange={handlePageChange}
+          />
+        </>
       )}
 
       <Dialog open={isModalOpen} onClose={handleCloseModal} fullWidth maxWidth="sm">

@@ -1,9 +1,17 @@
 import { api } from './axiosConfig';
 import type { CommentDto } from '../types/commentTypes';
+import type { PagedResult } from '../types/paginationTypes';
 
 
-export const getComments = async (): Promise<CommentDto[]> => {
-  const response = await api.get<CommentDto[]>('/admin/comments');
+export const getComments = async (pageNumber: number, pageSize: number): Promise<PagedResult<CommentDto>> => {
+  const response = await api.get<PagedResult<CommentDto>>('/admin/comments', 
+    {
+      params: {
+        PageNumber: pageNumber,
+        PageSize: pageSize
+      }
+    }
+  )
   return response.data;
 };
 

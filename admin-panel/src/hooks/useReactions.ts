@@ -8,10 +8,10 @@ import {
 import type { CreateReactionTypeDto } from '../types/reactionTypes';
 
 
-export const useReactionsQuery = () => {
+export const useReactionsQuery = (pageNumber: number, pageSize: number) => {
   return useQuery({
-    queryKey: ['reactions'],
-    queryFn: getReactions
+    queryKey: ['reactions', pageNumber, pageSize],
+    queryFn: ()=> getReactions(pageNumber, pageSize),
   });
 };
 

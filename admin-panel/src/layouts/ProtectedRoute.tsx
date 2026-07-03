@@ -6,7 +6,7 @@ export const ProtectedRoute = () => {
     const isAuth = localStorage.getItem('isAuthenticated') === 'true';
 
     if (!isAuth || !hasToken) {
-        console.log('❌ Redirect to login');
+        console.log(' Redirect to login');
         return <Navigate to="/login" replace />;
     }
 

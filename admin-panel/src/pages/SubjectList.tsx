@@ -19,6 +19,7 @@ import {
   useCreateSubject, 
   useUpdateSubject 
 } from '../hooks/useSubjects';
+import { CustomPagination } from '../components/Pagination';
 
 export const SubjectList = () => {
 
@@ -26,6 +27,13 @@ export const SubjectList = () => {
   const [editingSubject, setEditingSubject] = useState<SubjectDto | null>(null);
   const [subjectName, setSubjectName] = useState('');
   const [validationError, setValidationError] = useState('');
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 5;
+
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, newPage: number) => {
+    setPage(newPage);
+
+  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -34,7 +42,7 @@ export const SubjectList = () => {
     setValidationError('');
   };
 
-  const { data: subjects, isLoading, isError, error } = useSubjectsQuery();
+  const { data: subjects, isLoading, isError, error } = useSubjectsQuery(page, pageSize);
   
   const deleteMutation = useDeleteSubject();
   const createMutation = useCreateSubject(handleCloseModal);
@@ -95,28 +103,37 @@ export const SubjectList = () => {
         </Alert>}
 
       {!isLoading && !isError && subjects && (
-        <AdminTable headers={['ID', 'Nazwa przedmiotu', 'Akcje']}>
-          {subjects.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={3} align="center" sx={{ py: 3 }}>
-                Brak przedmiotów w bazie. Kliknij "Dodaj przedmiot", aby utworzyć pierwszy.
-              </TableCell>
-            </TableRow>
-          ) : (
-            subjects.map((subject) => (
-              <TableRow key={subject.id}>
-                <TableCell width="10%">{subject.id}</TableCell>
-                <TableCell>{subject.name}</TableCell>
-                <TableCell align="right" width="20%">
-                  <AdminActionButtons 
-                    onEdit={() => handleOpenModal(subject)} 
-                    onDelete={() => handleDelete(subject.id, subject.name)} 
-                  />
+        <>
+          <AdminTable headers={['ID', 'Nazwa przedmiotu', 'Akcje']}>
+            {subjects.items.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} align="center" sx={{ py: 3 }}>
+                  Brak przedmiotów w bazie. Kliknij "Dodaj przedmiot", aby utworzyć pierwszy.
+                  
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </AdminTable>
+            ) : (
+              subjects.items.map((subject) => (
+                <TableRow key={subject.id}>
+                  <TableCell width="10%">{subject.id}</TableCell>
+                  <TableCell>{subject.name}</TableCell>
+                  <TableCell align="right" width="20%">
+                    <AdminActionButtons 
+                      onEdit={() => handleOpenModal(subject)} 
+                      onDelete={() => handleDelete(subject.id, subject.name)} 
+                    />
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </AdminTable>
+
+          <CustomPagination 
+            totalPages={subjects.totalPages}
+            currentPage={subjects.currentPage}
+            onPageChange={handlePageChange}
+          />
+        </>
       )}
 
 

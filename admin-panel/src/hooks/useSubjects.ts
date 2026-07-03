@@ -2,10 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getSubjects, createSubject, updateSubject, deleteSubject } from '../api/adminSubjects';
 import type { SubjectRequestDto } from '../types/subjectTypes';
 
-export const useSubjectsQuery = () => {
+export const useSubjectsQuery = (pageNumber: number, pageSize: number) => {
   return useQuery({
-    queryKey: ['subjects'],
-    queryFn: getSubjects
+    queryKey: ['subjects', pageNumber, pageSize],
+    queryFn: () => getSubjects(pageNumber, pageSize)
   });
 };
 

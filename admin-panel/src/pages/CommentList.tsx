@@ -6,15 +6,25 @@ import { useCommentsQuery, useDeleteComment } from '../hooks/useComments';
 import { AdminPageHeader } from '../components/AdminPageHeader';
 import { AdminTable } from '../components/AdminTable';
 import type { CommentDto } from '../types/commentTypes';
+import { useState } from 'react';
+import { CustomPagination } from '../components/Pagination';
+
+
 
 export const CommentList = () => {
-  const { data: comments, isLoading, isError, error } = useCommentsQuery();
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 10;
+  const { data: comments, isLoading, isError, error,  } = useCommentsQuery(page, pageSize);
   const deleteMutation = useDeleteComment();
 
   const handleDelete = (id: number) => {
     if (window.confirm('Czy na pewno chcesz ukryć ten komentarz wraz ze wszystkimi odpowiedziami?')) {
       deleteMutation.mutate(id);
     }
+  };
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
+    setPage(newPage);
   };
 
   const renderComment = (comment: CommentDto, depth: number = 0) => {
@@ -52,16 +62,27 @@ export const CommentList = () => {
       {isError && <Alert severity="error">{(error as Error).message}</Alert>}
 
       {!isLoading && !isError && comments && (
-        <AdminTable headers={['Autor', 'Treść', 'Data', 'Akcje']}>
-          {comments.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={4} align="center">Brak komentarzy.</TableCell>
-            </TableRow>
-          ) : (
-            comments.map(comment => renderComment(comment))
-          )}
-        </AdminTable>
+        <>
+          <AdminTable headers={['Autor', 'Treść', 'Data', 'Akcje']}>
+            {comments.items.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} align="center">Brak komentarzy.</TableCell>
+              </TableRow>
+            ) : (
+              comments.items.map(comment => renderComment(comment))
+            )}
+          </AdminTable>
+
+          <CustomPagination 
+            totalPages={comments.totalPages}
+            currentPage={comments.currentPage}
+            onPageChange={handlePageChange}
+          />
+        </>
+        
+        
       )}
+      
     </Box>
   );
 };

@@ -1,9 +1,16 @@
 import { api } from './axiosConfig';
 import type { UserSummaryDto, UserDetailsAdminDto } from '../types/userTypes';
+import type { PagedResult } from '../types/paginationTypes';
 
 
-export const getAllUsers = async (): Promise<UserSummaryDto[]> => {
-  const response = await api.get<UserSummaryDto[]>('/admin/users');
+export const getAllUsers = async (pageNumber: number, pageSize: number): Promise<PagedResult<UserSummaryDto>> => {
+  const response = await api.get<PagedResult<UserSummaryDto>>('/admin/users', 
+    {
+      params: { 
+        pageNumber, 
+        pageSize 
+    }
+  });
   return response.data;
 };
 

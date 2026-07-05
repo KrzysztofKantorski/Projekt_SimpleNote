@@ -50,3 +50,15 @@ A comprehensive admin dashboard for the SimpleNote system, built as a Single Pag
 
 **Main page**
 ![Main page](./images/2.png)
+
+**User management page**
+![Main page](./images/3.png)
+
+**User details page**
+![Main page](./images/4.png)
+
+**Subject management page**
+![Main page](./images/5.png)
+
+
+

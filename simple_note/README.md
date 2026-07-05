@@ -80,5 +80,5 @@ lib/
 
 ## App screens
 
-* Login view
+* **Login view**
   ![Login view](./images/login.png)

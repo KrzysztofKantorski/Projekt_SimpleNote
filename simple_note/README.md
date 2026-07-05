@@ -82,7 +82,7 @@ lib/
 
 ## App screens
 
-<table>
+<table style='margin: 0 auto'>
   <tr>
     <td align="center"><b>Login view</b></td>
     <td align="center"><b>Main view</b></td>

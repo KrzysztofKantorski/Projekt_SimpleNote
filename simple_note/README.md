@@ -83,3 +83,23 @@ lib/
 **Login view**
 
 ![Login view](./images/login.png)
+
+**Main view**
+
+![Login view](./images/main_view.png)
+
+**Note view**
+
+![Login view](./images/note_view.png)
+
+**Edit note view**
+
+![Login view](./images/edit_note_view.png)
+
+**Create note from photo view**
+
+![Login view](./images/create_note_from_photo.png)
+
+**Community view**
+
+![Login view](./images/community.png)

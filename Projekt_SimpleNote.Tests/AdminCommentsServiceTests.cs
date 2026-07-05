@@ -1,11 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Moq;
+﻿using Moq;
 using Projekt_SimpleNote.Data;
-using Projekt_SimpleNote.Dto.Comments;
 using Projekt_SimpleNote.Entities;
 using Projekt_SimpleNote.Services;
 using MockQueryable.Moq;
-using Xunit;
+using Projekt_SimpleNote.Dto.Pagination;
 
 namespace Projekt_SimpleNote.Tests
 {
@@ -30,6 +28,10 @@ namespace Projekt_SimpleNote.Tests
         [Fact]
         public async Task GetAllCommentsAsync_ShouldReturnOnlyVisibleParentComments()
         {
+
+            //Create paginarionParams object
+            var paginationParams = new PaginationParamsDto(1, 10);
+
             //create test user
             var user = new User { Id = 1, Username = "TestUser" };
 
@@ -78,14 +80,20 @@ namespace Projekt_SimpleNote.Tests
             var service = new AdminCommentsService(mockContext.Object);
 
             //Call service method
-            var result = await service.GetAllCommentsAsync();
+            var result = await service.GetAllCommentsAsync(paginationParams);
 
-            var resultList = result.ToList();
+            var resultList = result.Items.ToList();
 
             Assert.Single(resultList);
 
             //Verify that only the visible parent comment is returned
             Assert.Equal("Visible Parent", resultList.First().Content);
+
+            //Verify pagination
+            Assert.Equal(1, result.TotalCount); 
+            Assert.Equal(1, result.CurrentPage);
+            Assert.Equal(10, result.PageSize);
+            Assert.Equal(1, result.TotalPages);
         }
 
 

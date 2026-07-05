@@ -1,6 +1,7 @@
 ﻿using MockQueryable.Moq;
 using Moq;
 using Projekt_SimpleNote.Data;
+using Projekt_SimpleNote.Dto.Pagination;
 using Projekt_SimpleNote.Entities;
 using Projekt_SimpleNote.Services;
 
@@ -29,6 +30,9 @@ namespace Projekt_SimpleNote.Tests
         [Fact]
         public async Task GetAllUsersAsync_ShouldReturnAllUsers_AsDto()
         {
+            //Pagination parameters
+            var paginationParams = new PaginationParamsDto(1, 10);
+
             var data = new List<User>
             {
                 new User { Id = 1, Username = "user1", IsActive = true, CreatedAt = DateTime.UtcNow.AddDays(-1) },
@@ -36,8 +40,8 @@ namespace Projekt_SimpleNote.Tests
             };
             var mockContext = CreateMockContext(data);
             var service = new AdminUsersService(mockContext.Object);
-            var result = await service.GetAllUsersAsync();
-            var resultList = result.ToList();
+            var result = await service.GetAllUsersAsync(paginationParams);
+            var resultList = result.Items.ToList();
             Assert.Equal(2, resultList.Count);
             Assert.Equal("user2", resultList[0].Username);
             Assert.False(resultList[0].IsActive);

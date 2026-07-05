@@ -1,6 +1,7 @@
 ﻿using MockQueryable.Moq;
 using Moq;
 using Projekt_SimpleNote.Data;
+using Projekt_SimpleNote.Dto.Pagination;
 using Projekt_SimpleNote.Entities;
 using Projekt_SimpleNote.Services;
 
@@ -22,6 +23,9 @@ namespace Projekt_SimpleNote.Tests
         [Fact]
         public async Task GetAllSubjectsAsync_ShouldReturnAllSubjects_AsDto()
         {
+            //Pagination parameters
+            var paginationParams = new PaginationParamsDto(1, 10);
+           
             //Sample subject data
             var data = new List<Subject>
             {
@@ -31,8 +35,8 @@ namespace Projekt_SimpleNote.Tests
 
             var mockContext = CreateMockContext(data);
             var service = new AdminSubjectsService(mockContext.Object);
-            var result = await service.GetAllSubjectsAsync();
-            var resultList = result.ToList();
+            var result = await service.GetAllSubjectsAsync(paginationParams);
+            var resultList = result.Items.ToList();
 
             //Verify that the result contains correct number of subjects and correct data
             Assert.Equal(2, resultList.Count);

@@ -2,6 +2,7 @@
 using Moq;
 using Projekt_SimpleNote.Data;
 using Projekt_SimpleNote.Dto.Admin;
+using Projekt_SimpleNote.Dto.Pagination;
 using Projekt_SimpleNote.Entities;
 using Projekt_SimpleNote.Services;
 
@@ -24,6 +25,7 @@ namespace Projekt_SimpleNote.Tests
         [Fact]
         public async Task GetAllReactionTypesAsync_ShouldReturnAllReactions_AsDto()
         {
+            var paginationParams = new PaginationParamsDto( 1, 10 );
             var data = new List<ReactionType>
             {
                 new ReactionType { Id = 1, Name = "Like", IconUrl = "assets/icons/like.png" },
@@ -34,13 +36,18 @@ namespace Projekt_SimpleNote.Tests
 
             var service = new AdminReactionsSerwice(mockContext.Object);
 
-            var result = await service.GetAllReactionTypesAsync();
-            var resultList = result.ToList();
+            var result = await service.GetAllReactionTypesAsync(paginationParams);
+            var resultList = result.Items.ToList();
 
             Assert.Equal(2, resultList.Count);
             Assert.Equal("Like", resultList[0].Name);
             Assert.Equal("assets/icons/love.png", resultList[1].IconUrl);
 
+            //Pagination
+            Assert.Equal(2, result.TotalCount);
+            Assert.Equal(1, result.CurrentPage);
+            Assert.Equal(10, result.PageSize);
+            Assert.Equal(1, result.TotalPages);
         }
 
 
@@ -72,6 +79,7 @@ namespace Projekt_SimpleNote.Tests
 
             var mockContext = CreateMockContext(data);
             var service = new AdminReactionsSerwice(mockContext.Object);
+
 
             //Add duplicate reaction
             var newDto = new CreateReactionTypeDto("like", "like2.png");

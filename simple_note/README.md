@@ -77,3 +77,8 @@ lib/
 ├── components/                # Reusable widgets
 └── theme/                     # App theme
 ```
+
+## App screens
+
+* Login view
+  ![Login view](https://github.com/KrzysztofKantorski/Projekt_SimpleNote/edit/master/simple_note/images/login.png)

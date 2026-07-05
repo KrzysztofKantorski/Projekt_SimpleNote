@@ -68,7 +68,7 @@ Once the API is running, navigate to:
 ```
 https://localhost:PORT/scalar/v1
 ```
-##Architecture
+## Architecture
 ```
 /Controllers - handling error responses, validate data, return response messages
 /Data        - DbContext, EfCore data configuration

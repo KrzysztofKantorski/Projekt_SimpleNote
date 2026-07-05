@@ -66,11 +66,8 @@ A comprehensive admin dashboard for the SimpleNote system, built as a Single Pag
 **Reaction management page**
 ![Main page](./images/7.png)
 
-**Comment management page**
+**Edit reaction page**
 ![Main page](./images/8.png)
 
-
-
-
-**Subject management page**
-![Main page](./images/5.png)
+**Comment management page**
+![Main page](./images/9.png)

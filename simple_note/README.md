@@ -81,4 +81,4 @@ lib/
 ## App screens
 
 * Login view
-  ![Login view](https://github.com/KrzysztofKantorski/Projekt_SimpleNote/edit/master/simple_note/images/login.png)
+  ![Login view](./images/login.png)

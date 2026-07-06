@@ -68,3 +68,15 @@ Once the API is running, navigate to:
 ```
 https://localhost:PORT/scalar/v1
 ```
+## Architecture
+```
+/Controllers - handling error responses, validate data, return response messages
+/Data        - DbContext, EfCore data configuration
+/Dto         - Data transfer objects
+/Entities    - Representation of database structure
+/Extensions  - Custom configurations for CORS, JWT etc
+/Middleware  - Global exception handler, saving user context
+/Migrations  - EfCore migrations with timestamps
+/Services    - business logic
+/Validators  - Validating Dto's with fluent validation
+```

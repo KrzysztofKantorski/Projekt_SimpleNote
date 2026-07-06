@@ -77,3 +77,30 @@ lib/
 ├── components/                # Reusable widgets
 └── theme/                     # App theme
 ```
+
+## App screens
+
+## App screens
+
+<table style='margin: 0 auto'>
+  <tr>
+    <td align="center"><b>Login view</b></td>
+    <td align="center"><b>Main view</b></td>
+    <td align="center"><b>Note view</b></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="./images/login.png" width="250" alt="Login view"></td>
+    <td align="center"><img src="./images/main_view.png" width="250" alt="Main view"></td>
+    <td align="center"><img src="./images/note_view.png" width="250" alt="Note view"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Edit note view</b></td>
+    <td align="center"><b>Create note from photo</b></td>
+    <td align="center"><b>Community view</b></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="./images/edit_note_view.png" width="250" alt="Edit note view"></td>
+    <td align="center"><img src="./images/create_note_from_photo.png" width="250" alt="Create note from photo view"></td>
+    <td align="center"><img src="./images/community.png" width="250" alt="Community view"></td>
+  </tr>
+</table>

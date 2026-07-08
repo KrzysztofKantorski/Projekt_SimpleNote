@@ -93,11 +93,5 @@ namespace Projekt_SimpleNote.Services
 
             return (true, "");
         }
-
-
-
-
-
-
     }
 }

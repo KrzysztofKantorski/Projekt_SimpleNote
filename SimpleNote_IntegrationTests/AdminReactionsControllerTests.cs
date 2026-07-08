@@ -256,5 +256,60 @@ namespace SimpleNote_IntegrationTests
             var deletedReactionTypeInDb = await DbContext.ReactionTypes.AsNoTracking().FirstOrDefaultAsync(rt => rt.Id == existingReactionType.Id);
             Assert.Null(deletedReactionTypeInDb);
         }
+
+
+
+        //Delete reaction type that is used in notes
+        [Fact]
+        public async Task DeleteReactionTypeAsAdmin_ShouldReturnBadRequest_WhenReactionIsUsedInNotes()
+        {
+            var testUser = new User
+            {
+                Username = "TestAdmin",
+                Role = "Admin"
+            };
+
+            var existingReactionType = new ReactionType
+            {
+                Name = "ExistingReaction",
+                IconUrl = "http://example.com/existingicon.png"
+            };
+
+            var note = new Note
+            {
+                Title = "Test Note",
+                Content = "This is a test note.",
+                User = testUser
+            };
+
+            var reaction = new NoteReaction
+            {
+                Note = note,
+                ReactionType = existingReactionType,
+                User = testUser
+            };
+
+            //Save data
+            DbContext.Users.Add(testUser);
+            DbContext.ReactionTypes.Add(existingReactionType);
+            DbContext.Notes.Add(note);
+            DbContext.NoteReactions.Add(reaction);
+
+            await DbContext.SaveChangesAsync();
+
+            Client.AuthenticateAs(testUser);
+
+            var url = $"/api/admin/reactions/{existingReactionType.Id}";
+
+            //Send request
+            var response = await Client.DeleteAsync(url);
+
+            //Verify status code
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            //Verify that the reaction type was not deleted from the database
+            var reactionTypeInDb = await DbContext.ReactionTypes.AsNoTracking().FirstOrDefaultAsync(rt => rt.Id == existingReactionType.Id);
+            Assert.NotNull(reactionTypeInDb);
+        }
     }
 }

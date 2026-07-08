@@ -46,6 +46,8 @@ namespace Projekt_SimpleNote.Services
             {
                 return (false, "Subject with this name alerdy exists", null);
             }
+
+
             var subject = new Subject
             {
                 Name = dto.Name

@@ -1,8 +1,10 @@
-﻿using Projekt_SimpleNote.Dto.Comments;
+﻿using Microsoft.EntityFrameworkCore;
+using Projekt_SimpleNote.Dto.Comments;
 using Projekt_SimpleNote.Dto.Pagination;
 using Projekt_SimpleNote.Entities;
-using System.Net.Http.Json;
 using SimpleNote_IntegrationTests.Helpers;
+using System.Net;
+using System.Net.Http.Json;
 
 
 namespace SimpleNote_IntegrationTests
@@ -14,20 +16,22 @@ namespace SimpleNote_IntegrationTests
             
         }
 
+
+        //Get comments as admin
         [Fact]
         public async Task GetComments_ShouldReturnOkAndCommentsList_WhenUserIsAdmin()
         {
             //Create test data
             var testUser = new User
             {
-                Username = "CommentAuthor",
+                Username = "TestAdmin",
                 Role = "Admin"
             };
 
             var testNote = new Note
             {
-                Title = "Testowa Notatka",
-                Content = "Treść notatki",
+                Title = "Test note",
+                Content = "Note content",
                 User = testUser
             };
 
@@ -55,7 +59,7 @@ namespace SimpleNote_IntegrationTests
             var response = await Client.GetAsync(url);
 
             //Verify status code
-            Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
             //Get JSON response message
             var pagedResult = await response.Content.ReadFromJsonAsync<PagedResult<CommentDto>>();
@@ -70,5 +74,125 @@ namespace SimpleNote_IntegrationTests
             Assert.Equal(10, pagedResult.PageSize);
             Assert.Equal(10, pagedResult.Items.Count());
         }
+
+
+        //Get comments as regular user
+        [Fact]
+        public async Task GetComments_ShouldReturnForbidden_WhenUserIsNotAdmin() 
+        { 
+            //create regular user
+            var user = new User
+            {
+                Username = "RegularUser",
+                Role = "User"
+            };
+
+            //Save user
+            DbContext.Users.Add(user);
+            await DbContext.SaveChangesAsync();
+
+            //Authenticate as regular user
+            Client.AuthenticateAs(user);
+
+            var url = "/api/admin/comments?pageNumber=1&PageSize=10";
+
+            //Send request
+            var response = await Client.GetAsync(url);
+
+            //Chech status code
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+
+
+
+        //Delete comment as admin
+        [Fact]
+        public async Task DeleteComment_ShouldHideCommentAndReplies_WhenUserIsAdmin()
+        {
+            var testUser = new User 
+            {
+                Username = "TestAdmin",
+                Role = "Admin" 
+            };
+
+            var testNote = new Note
+            {
+                Title = "Test note for deletion",
+                Content = "Note content",
+                User = testUser
+            };
+
+            var parentComment = new Comment
+            {
+                Content = "Parent comment",
+                User = testUser,
+                Note = testNote,
+                CreatedAt = DateTime.UtcNow
+            };
+
+
+            var replyComment = new Comment
+            {
+                Content = "Reply comment",
+                User = testUser,
+                Note = testNote,
+                ParentComment = parentComment,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            //Save data
+            DbContext.Comments.AddRange(parentComment, replyComment);
+            await DbContext.SaveChangesAsync();
+
+            Client.AuthenticateAs(testUser);
+
+            var url = $"/api/admin/comments/{parentComment.Id}";
+
+            //Send request
+            var response = await Client.DeleteAsync(url);
+
+            //Check status code
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+            //Verify that comments are in db
+            var parentCommentInDb = await DbContext.Comments.AsNoTracking().FirstOrDefaultAsync(c => c.Id == parentComment.Id);
+            var replyCommentInDb = await DbContext.Comments.AsNoTracking().FirstOrDefaultAsync(c => c.Id == replyComment.Id);
+
+            Assert.NotNull(parentCommentInDb);
+            Assert.NotNull(replyCommentInDb);
+
+            //Verify that comments are hidden
+            Assert.True(parentCommentInDb.IsHiddenByAdmin);
+            Assert.True(replyCommentInDb.IsHiddenByAdmin);
+        }
+
+
+
+        //Delete comment that does not exist
+        [Fact]
+        public async Task DeleteComment_ShouldReturnBadRequest_WhenCommentDoesNotExist()
+        {
+            var testUser = new User 
+            {
+                Username = "TestAdmin",
+                Role = "Admin" 
+            };
+
+            DbContext.Users.Add(testUser);
+            await DbContext.SaveChangesAsync();
+
+            Client.AuthenticateAs(testUser);
+
+            //Try to delete comment with id that does not exist
+            var commentId = 999;
+            var url = $"/api/admin/comments/{commentId}";
+
+            var response = await Client.DeleteAsync(url);
+
+            //Check status code
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
     }
 }

@@ -91,6 +91,8 @@ namespace Projekt_SimpleNote.Services
             }
 
             reaction.Name = dto.Name;
+            reaction.IconUrl = dto.IconUrl;
+
             await _context.SaveChangesAsync();
 
             var subjectDto = new ReactionTypeDto

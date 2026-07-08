@@ -19,6 +19,13 @@ namespace SimpleNote_IntegrationTests
             DbContext.Comments.RemoveRange(DbContext.Comments);
             DbContext.Notes.RemoveRange(DbContext.Notes);
             DbContext.Users.RemoveRange(DbContext.Users);
+            DbContext.Subjects.RemoveRange(DbContext.Subjects);
+            DbContext.Tags.RemoveRange(DbContext.Tags);
+            DbContext.NoteReactions.RemoveRange(DbContext.NoteReactions);
+            DbContext.ReactionTypes.RemoveRange(DbContext.ReactionTypes);
+            DbContext.RefreshTokens.RemoveRange(DbContext.RefreshTokens);
+
+            //Save changes
             DbContext.SaveChanges();
         }
 

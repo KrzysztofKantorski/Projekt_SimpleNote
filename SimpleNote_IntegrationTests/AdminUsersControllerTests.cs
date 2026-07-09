@@ -5,7 +5,6 @@ using Projekt_SimpleNote.Entities;
 using SimpleNote_IntegrationTests.Helpers;
 using System.Net;
 using System.Net.Http.Json;
-using System.Runtime.ConstrainedExecution;
 
 namespace SimpleNote_IntegrationTests
 {

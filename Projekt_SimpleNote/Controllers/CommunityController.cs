@@ -47,6 +47,8 @@ namespace Projekt_SimpleNote.Controllers
                 return BadRequest(new { message = "You must provide proper note id" });
             }
 
+
+
             var noteDetails = await _communityService.GetPublicNoteByIdAsync(id, currentUserId);
             
             return Ok(noteDetails);

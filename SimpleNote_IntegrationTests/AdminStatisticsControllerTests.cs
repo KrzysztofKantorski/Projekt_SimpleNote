@@ -17,14 +17,9 @@ namespace SimpleNote_IntegrationTests
         public async Task GetDashboardStatistics_ShouldReturnOkAndStatistics_WhenUserIsAdmin()
         {
             //Create test data
-            var testUser = new User
-            {
-                Username = "TestAdmin",
-                Role = "Admin"
-            };
+            var testUser = DbContext.CreateTestUser(role: "Admin");
 
             //Save data
-            DbContext.Users.Add(testUser);
             await DbContext.SaveChangesAsync();
 
             //Generate JWT token
@@ -49,14 +44,9 @@ namespace SimpleNote_IntegrationTests
         public async Task GetDashboardStatistics_ShouldReturnForbidden_WhenUserIsNotAdmin()
         {
             //Create test data
-            var testUser = new User
-            {
-                Username = "TestUser",
-                Role = "User"
-            };
+            var testUser = DbContext.CreateTestUser(role: "User");
 
             //Save data
-            DbContext.Users.Add(testUser);
             await DbContext.SaveChangesAsync();
 
             //Generate JWT token

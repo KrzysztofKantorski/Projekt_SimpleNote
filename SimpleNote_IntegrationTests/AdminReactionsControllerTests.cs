@@ -95,11 +95,7 @@ namespace SimpleNote_IntegrationTests
         public async Task CreateReactionTypeAsAdmin_ShouldReturnCreated_WhenUserIsAdmin()
         {
             //Create test data
-            var testUser = new User
-            {
-                Username = "TestAdmin",
-                Role = "Admin"
-            };
+            var testUser = DbContext.CreateTestUser(role: "Admin");
 
             var newReactionType = new CreateReactionTypeDto
             (
@@ -107,8 +103,7 @@ namespace SimpleNote_IntegrationTests
                 IconUrl: "http://example.com/newicon.png"
             );
 
-            //Save data
-            DbContext.Users.Add(testUser);
+
             await DbContext.SaveChangesAsync();
             Client.AuthenticateAs(testUser);
 
@@ -134,27 +129,14 @@ namespace SimpleNote_IntegrationTests
         [Fact]
         public async Task CreateReactionTypeAsAdmin_ShouldReturnBadRequest_WhenReactionAlerdyExists()
         {
-            var testUser = new User
-            {
-                Username = "TestAdmin",
-                Role = "Admin"
-            };
+         
+            var testUser = DbContext.CreateTestUser(role: "Admin");
+           
+            var existingReactionType = DbContext.CreateTestReactionType();
 
-            var existingReactionType = new ReactionType
-            {
-                Name = "ExistingReaction",
-                IconUrl = "http://example.com/existingicon.png"
-            };
-
-            var newReactionType = new CreateReactionTypeDto
-            (
-                Name: "ExistingReaction",
-                IconUrl: "http://example.com/existingicon.png"
-            );
+            var newReactionType = DbContext.CreateTestReactionTypeDto();
 
             //Save data
-            DbContext.Users.Add(testUser);
-            DbContext.ReactionTypes.Add(existingReactionType);
             await DbContext.SaveChangesAsync();
 
             Client.AuthenticateAs(testUser);
@@ -179,27 +161,14 @@ namespace SimpleNote_IntegrationTests
         [Fact]
         public async Task UpdateReactionTypeAsAdmin_ShouldReturnOk_WhenUserIsAdmin()
         {
-            var testUser = new User
-            {
-                Username = "TestAdmin",
-                Role = "Admin"
-            };
-
-            var existingReactionType = new ReactionType
-            {
-                Name = "ExistingReaction",
-                IconUrl = "http://example.com/existingicon.png"
-            };
-
-            var updatedReactionTypeDto = new CreateReactionTypeDto
-            (
-               Name: "UpdatedReaction",
-               IconUrl: "http://example.com/updatedicon.png"
-            );
+           
+            var testUser = DbContext.CreateTestUser(role: "Admin");
+           
+            var existingReactionType = DbContext.CreateTestReactionType();
+          
+            var updatedReactionTypeDto = DbContext.CreateTestReactionTypeDto(name: "UpdatedReaction");
 
             //Save data
-            DbContext.Users.Add(testUser);
-            DbContext.ReactionTypes.Add(existingReactionType);
             await DbContext.SaveChangesAsync();
 
             Client.AuthenticateAs(testUser);
@@ -225,21 +194,12 @@ namespace SimpleNote_IntegrationTests
         [Fact]
         public async Task DeleteReactionTypeAsAdmin_ShouldReturnNoContent_WhenUserIsAdmin()
         {
-            var testUser = new User
-            {
-                Username = "TestAdmin",
-                Role = "Admin"
-            };
-
-            var existingReactionType = new ReactionType
-            {
-                Name = "ExistingReaction",
-                IconUrl = "http://example.com/existingicon.png"
-            };
+         
+            var testUser = DbContext.CreateTestUser(role: "Admin");
+           
+            var existingReactionType = DbContext.CreateTestReactionType();
 
             //Save data
-            DbContext.Users.Add(testUser);
-            DbContext.ReactionTypes.Add(existingReactionType);
             await DbContext.SaveChangesAsync();
 
             Client.AuthenticateAs(testUser);
@@ -263,38 +223,24 @@ namespace SimpleNote_IntegrationTests
         [Fact]
         public async Task DeleteReactionTypeAsAdmin_ShouldReturnBadRequest_WhenReactionIsUsedInNotes()
         {
-            var testUser = new User
-            {
-                Username = "TestAdmin",
-                Role = "Admin"
-            };
+            var testUser = DbContext.CreateTestUser(role: "Admin");
 
-            var existingReactionType = new ReactionType
-            {
-                Name = "ExistingReaction",
-                IconUrl = "http://example.com/existingicon.png"
-            };
+            var existingReactionType = DbContext.CreateTestReactionType();
 
-            var note = new Note
-            {
-                Title = "Test Note",
-                Content = "This is a test note.",
-                User = testUser
-            };
+            var note = DbContext.CreateTestNote(
+                testUser,
+                title: "Test Note",
+                content: "This is a test note.",
+                subject: null
+            );
 
-            var reaction = new NoteReaction
-            {
-                Note = note,
-                ReactionType = existingReactionType,
-                User = testUser
-            };
+            var noteReraction = DbContext.CreateTestNoteReaction(
+                note: note,
+                reactionType: existingReactionType,
+                user: testUser
+            );
 
             //Save data
-            DbContext.Users.Add(testUser);
-            DbContext.ReactionTypes.Add(existingReactionType);
-            DbContext.Notes.Add(note);
-            DbContext.NoteReactions.Add(reaction);
-
             await DbContext.SaveChangesAsync();
 
             Client.AuthenticateAs(testUser);

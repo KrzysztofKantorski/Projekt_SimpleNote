@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using IDictionaryService = Projekt_SimpleNote.Services.Interfaces.IDictionaryService;
+using Projekt_SimpleNote.Services.Interfaces;
+
 namespace Projekt_SimpleNote.Controllers
 {
     [Route("api/dictionaries")]

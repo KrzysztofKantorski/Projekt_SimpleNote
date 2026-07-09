@@ -86,8 +86,6 @@ namespace Projekt_SimpleNote.Controllers
 
         //Delete reaction from note
 
-        //Add reaction to note
-
         [HttpDelete("notes/{noteId}/reactions/{reactionId}")]
 
         public async Task<IActionResult> RemoveNoteReaction([FromRoute] long noteId, [FromRoute] long reactionId)

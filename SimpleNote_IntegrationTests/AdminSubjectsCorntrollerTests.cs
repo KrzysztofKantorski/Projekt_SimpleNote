@@ -21,23 +21,12 @@ namespace SimpleNote_IntegrationTests
         public async Task GetAllSubjects_ShouldReturnOkAndPagedList_WhenUserIsAdmin()
         {
             //Create test data
-            var admin = new User 
-            { 
-                Username = "TestAdmin", 
-                Role = "Admin" 
-            };
-
-            DbContext.Users.Add(admin);
+          
+            var admin = DbContext.CreateTestUser(role: "Admin");
 
             for (int i = 1; i <= 5; i++)
             {
-                DbContext.Subjects.Add
-                (
-                    new Subject 
-                    { 
-                        Name = $"Subject {i}" 
-                    }
-                );
+                DbContext.CreateTestSubject(name: $"Subject_{i}");
             }
 
             await DbContext.SaveChangesAsync();
@@ -63,11 +52,8 @@ namespace SimpleNote_IntegrationTests
         [Fact]
         public async Task GetAllSubjects_ShouldReturnForbidden_WhenUserIsRegularUser()
         {
-            var regularUser = new User 
-            { 
-                Username = "TestUser",
-                Role = "User" 
-            };
+         
+            var regularUser = DbContext.CreateTestUser(role: "User");
 
             Client.AuthenticateAs(regularUser); 
             var url = "/api/admin/subjects?pageNumber=1&pageSize=10";
@@ -84,13 +70,9 @@ namespace SimpleNote_IntegrationTests
         [Fact]
         public async Task AddSubject_ShouldReturnOk_AndSaveToDatabase_WhenValid()
         {
-            var admin = new User 
-            { 
-                Username = "TestAdmin", 
-                Role = "Admin" 
-            };
 
-            DbContext.Users.Add(admin);
+            var admin = DbContext.CreateTestUser(role: "Admin");
+
             await DbContext.SaveChangesAsync();
 
             Client.AuthenticateAs(admin);
@@ -116,14 +98,9 @@ namespace SimpleNote_IntegrationTests
         [Fact]
         public async Task AddSubject_ShouldReturnBadRequest_WhenSubjectNameAlreadyExists()
         {
-            var admin = new User 
-            { 
-                Username = "TestAdmin", 
-                Role = "Admin" 
-            };
+            var admin = DbContext.CreateTestUser(role: "Admin");
 
-            DbContext.Subjects.Add(new Subject { Name = "Physics" });
-            DbContext.Users.Add(admin);
+            DbContext.CreateTestSubject(name: "Physics");
 
             await DbContext.SaveChangesAsync();
 
@@ -131,6 +108,7 @@ namespace SimpleNote_IntegrationTests
 
             // Try to add a subject with the same name
             var duplicateSubjectDto = new SubjectRequestDto("physics");
+
             var url = "/api/admin/subjects";
 
             var response = await Client.PostAsJsonAsync(url, duplicateSubjectDto);
@@ -145,24 +123,16 @@ namespace SimpleNote_IntegrationTests
         public async Task UpdateSubject_ShouldReturnOk_AndUpdateInDatabase()
         {
             //Create test data
-            var admin = new User 
-            { 
-                Username = "TestAdmin", 
-                Role = "Admin" 
-            };
+            var admin = DbContext.CreateTestUser(role: "Admin");
 
-            var existingSubject = new Subject 
-            { 
-                Name = "Old Name" 
-            };
+            var existingSubject = DbContext.CreateTestSubject(name: "Old name");
 
-            DbContext.Subjects.Add(existingSubject);
-            DbContext.Users.Add(admin);
             await DbContext.SaveChangesAsync();
 
             Client.AuthenticateAs(admin);
 
             var updateDto = new SubjectRequestDto("New Name");
+
             var url = $"/api/admin/subjects/{existingSubject.Id}";
 
             var response = await Client.PutAsJsonAsync(url, updateDto);
@@ -182,19 +152,11 @@ namespace SimpleNote_IntegrationTests
         [Fact]
         public async Task DeleteSubject_ShouldReturnOk_AndRemoveFromDatabase_WhenUnused()
         {
-            var admin = new User 
-            { 
-                Username = "TestAdmin",
-                Role = "Admin" 
-            };
+         
+            var admin = DbContext.CreateTestUser(role: "Admin");
 
-            var subjectToDelete = new Subject 
-            {
-                Name = "To Be Deleted" 
-            };
+            var subjectToDelete = DbContext.CreateTestSubject(name: "To Be Deleted");
 
-            DbContext.Subjects.Add(subjectToDelete);
-            DbContext.Users.Add(admin);
             await DbContext.SaveChangesAsync();
 
             Client.AuthenticateAs(admin);
@@ -214,27 +176,18 @@ namespace SimpleNote_IntegrationTests
         [Fact]
         public async Task DeleteSubject_ShouldReturnBadRequest_WhenSubjectIsUsedInNotes()
         {
-            var admin = new User 
-            { 
-                Username = "Admin", 
-                Role = "Admin" 
-            };
-            var testSubject = new Subject 
-            { 
-                Name = "Biology" 
-            };
+           
+            var admin = DbContext.CreateTestUser(role: "Admin");
+           
+            var testSubject = DbContext.CreateTestSubject(name: "Biology");
 
-            var testNote = new Note
-            {
-                Title = "Test",
-                Content = "Content",
-                Subject = testSubject, 
-                User = admin
-            };
+            var testNote = DbContext.CreateTestNote(
+                title: "Test",
+                content: "Content",
+                subject: testSubject,
+                user: admin
+            );
 
-            DbContext.Subjects.Add(testSubject);
-            DbContext.Notes.Add(testNote);
-            DbContext.Users.Add(admin);
             await DbContext.SaveChangesAsync();
 
             Client.AuthenticateAs(admin);

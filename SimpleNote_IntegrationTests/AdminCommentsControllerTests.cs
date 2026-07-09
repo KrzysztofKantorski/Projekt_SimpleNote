@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Projekt_SimpleNote.Dto.Comments;
 using Projekt_SimpleNote.Dto.Pagination;
 using Projekt_SimpleNote.Entities;
@@ -22,29 +23,18 @@ namespace SimpleNote_IntegrationTests
         public async Task GetComments_ShouldReturnOkAndCommentsList_WhenUserIsAdmin()
         {
             //Create test data
-            var testUser = new User
-            {
-                Username = "TestAdmin",
-                Role = "Admin"
-            };
+            var testUser = DbContext.CreateTestUser(role: "Admin");
 
-            var testNote = new Note
-            {
-                Title = "Test note",
-                Content = "Note content",
-                User = testUser
-            };
+            var testNote = DbContext.CreateTestNote(user: testUser, subject: null);
 
             //Create test comments
             for (int i = 0; i < 15; i++)
             {
-                DbContext.Comments.Add(new Comment
-                {
-                    Content = $"Test comment {i + 1}",
-                    User = testUser,
-                    CreatedAt = DateTime.UtcNow,
-                    Note = testNote
-                });
+                DbContext.CreateTestComment(
+                    content: $"Test comment {i + 1}", 
+                    user: testUser, 
+                    note: testNote
+                );
             }
 
             //Save data
@@ -81,14 +71,8 @@ namespace SimpleNote_IntegrationTests
         public async Task GetComments_ShouldReturnForbidden_WhenUserIsNotAdmin() 
         { 
             //create regular user
-            var user = new User
-            {
-                Username = "RegularUser",
-                Role = "User"
-            };
+            var user = DbContext.CreateTestUser(username: "RegularUser");
 
-            //Save user
-            DbContext.Users.Add(user);
             await DbContext.SaveChangesAsync();
 
             //Authenticate as regular user
@@ -110,36 +94,26 @@ namespace SimpleNote_IntegrationTests
         [Fact]
         public async Task DeleteComment_ShouldHideCommentAndReplies_WhenUserIsAdmin()
         {
-            var testUser = new User 
-            {
-                Username = "TestAdmin",
-                Role = "Admin" 
-            };
+            var testUser = DbContext.CreateTestUser(role: "Admin");
 
-            var testNote = new Note
-            {
-                Title = "Test note for deletion",
-                Content = "Note content",
-                User = testUser
-            };
+            var testNote = DbContext.CreateTestNote(
+                title: "Test note for deletion",
+                content: "Note content", 
+                user: testUser,
+                subject: null
+                );
 
-            var parentComment = new Comment
-            {
-                Content = "Parent comment",
-                User = testUser,
-                Note = testNote,
-                CreatedAt = DateTime.UtcNow
-            };
+            var parentComment = DbContext.CreateTestComment(
+                content: "Parent comment",
+                user: testUser,
+                note: testNote);
 
+            var replyComment = DbContext.CreateTestComment(
+                user: testUser,
+                note: testNote,
+                parentComment: parentComment,
+                content: "Reply comment");
 
-            var replyComment = new Comment
-            {
-                Content = "Reply comment",
-                User = testUser,
-                Note = testNote,
-                ParentComment = parentComment,
-                CreatedAt = DateTime.UtcNow
-            };
 
             //Save data
             DbContext.Comments.AddRange(parentComment, replyComment);
@@ -173,13 +147,8 @@ namespace SimpleNote_IntegrationTests
         [Fact]
         public async Task DeleteComment_ShouldReturnBadRequest_WhenCommentDoesNotExist()
         {
-            var testUser = new User 
-            {
-                Username = "TestAdmin",
-                Role = "Admin" 
-            };
+            var testUser = DbContext.CreateTestUser(role: "Admin");
 
-            DbContext.Users.Add(testUser);
             await DbContext.SaveChangesAsync();
 
             Client.AuthenticateAs(testUser);

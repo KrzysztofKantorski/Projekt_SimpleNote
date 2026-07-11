@@ -13,7 +13,7 @@ namespace SimpleNote_IntegrationTests.Helpers
             var refreshToken = new RefreshToken
             {
                 User = user,
-                Token = "dummy-token",
+                Token = token,
                 ExpiresAt = DateTime.UtcNow.AddDays(7)
             };
 

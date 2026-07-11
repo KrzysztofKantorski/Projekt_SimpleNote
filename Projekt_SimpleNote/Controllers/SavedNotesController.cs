@@ -52,7 +52,7 @@ namespace Projekt_SimpleNote.Controllers
                 return BadRequest(new { message = result.Message });
             }
 
-            return Ok(new { message = result.Message });
+            return NoContent();
         }
 
 
@@ -81,7 +81,7 @@ namespace Projekt_SimpleNote.Controllers
             }
                
 
-            return Ok(new { message = result.Message });
+            return NoContent();
         }
     }
 }

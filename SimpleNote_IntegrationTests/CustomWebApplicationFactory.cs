@@ -17,9 +17,9 @@ namespace SimpleNote_IntegrationTests
 
         // Zmień inicjalizację _dbContainer, aby użyć nowego konstruktora z parametrem image
         private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder("postgres:15-alpine")
-            .WithDatabase(Environment.GetEnvironmentVariable("TEST_DB_NAME") ?? "SimpleNoteTestDb")
-            .WithUsername(Environment.GetEnvironmentVariable("TEST_DB_USER") ?? "postgres")
-            .WithPassword(Environment.GetEnvironmentVariable("TEST_DB_PASSWORD") ?? "postgres")
+            .WithDatabase(Environment.GetEnvironmentVariable("TEST_DB_NAME"))
+            .WithUsername(Environment.GetEnvironmentVariable("TEST_DB_USER"))
+            .WithPassword(Environment.GetEnvironmentVariable("TEST_DB_PASSWORD"))
             .Build();
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)

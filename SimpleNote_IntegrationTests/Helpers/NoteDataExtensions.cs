@@ -1,4 +1,5 @@
-﻿using Projekt_SimpleNote.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Projekt_SimpleNote.Data;
 using Projekt_SimpleNote.Entities;
 
 namespace SimpleNote_IntegrationTests.Helpers
@@ -27,7 +28,6 @@ namespace SimpleNote_IntegrationTests.Helpers
 
             return testNote;
         }
-
 
         public static NoteReaction CreateTestNoteReaction(
              this ApplicationDbContext context,

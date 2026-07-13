@@ -11,7 +11,7 @@ Backend REST API for the SimpleNote mobile application (built with Flutter) and 
 * **Authentication:** JWT (JSON Web Tokens) with Refresh tokens 
 * **Security:** BCrypt for password hashing, Middlewares
 
-## Prerequisites
+## Prerequirements
 
 Before running the API locally, ensure you have the following installed:
 * [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
